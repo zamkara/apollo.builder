@@ -31,6 +31,10 @@ RUN sudo -u builder makepkg -s --noconfirm && \
 # Copy final image from base
 FROM ghcr.io/apollo-linux/apollo-nvidia:latest
 
+# Install bootupd runtime dependencies in final image
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm util-linux openssl grub efibootmgr dosfstools
+
 # Copy bootupd binaries and libraries from builder stage
 COPY --from=builder /usr/libexec/bootupd /usr/libexec/bootupd
 COPY --from=builder /usr/bin/bootupctl /usr/bin/bootupctl
