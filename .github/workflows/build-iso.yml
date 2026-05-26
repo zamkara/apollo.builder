@@ -1,0 +1,48 @@
+name: Build Apollo NVIDIA ISO
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman xorriso
+      
+      - name: Create bootable image
+        run: |
+          mkdir -p output
+          sudo dd if=/dev/zero of=output/apollo-nvidia.img bs=1G count=10
+          
+          sudo podman run --rm --privileged \
+            --pid=host \
+            --volume /dev:/dev \
+            --volume $(pwd)/output:/output \
+            ghcr.io/apollo-linux/apollo-nvidia:latest \
+            bootc install to-disk --via-loopback \
+            --filesystem btrfs \
+            /output/apollo-nvidia.img
+      
+      - name: Convert to ISO
+        run: |
+          cd output
+          sudo xorriso -as mkisofs -o apollo-nvidia.iso \
+            -isohybrid-mbr apollo-nvidia.img \
+            apollo-nvidia.img
+          ls -lh apollo-nvidia.iso
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apollo-nvidia-iso
+          path: output/apollo-nvidia.iso
