@@ -1,4 +1,4 @@
-FROM ghcr.io/apollo-linux/apollo-nvidia:latest
+FROM ghcr.io/apollo-linux/apollo-nvidia:latest as builder
 
 RUN pacman -Syu --noconfirm && \
     pacman -S --noconfirm base-devel git sudo && \
@@ -9,6 +9,15 @@ RUN pacman -Syu --noconfirm && \
       git clone https://aur.archlinux.org/bootupd.git && \
       cd bootupd && \
       makepkg -si --noconfirm \
-    ' && \
-    userdel -r builder && \
-    rm -rf /tmp/bootupd
+    '
+
+# Copy final image from base
+FROM ghcr.io/apollo-linux/apollo-nvidia:latest
+
+# Copy bootupd dari builder stage
+COPY --from=builder /usr/libexec/bootupd /usr/libexec/bootupd
+COPY --from=builder /usr/bin/bootupctl /usr/bin/bootupctl
+COPY --from=builder /usr/lib/bootupd /usr/lib/bootupd
+COPY --from=builder /usr/lib/systemd/system/bootloader-update.service /usr/lib/systemd/system/
+
+RUN chmod +x /usr/libexec/bootupd /usr/bin/bootupctl
