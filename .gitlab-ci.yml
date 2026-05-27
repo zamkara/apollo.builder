@@ -1,0 +1,9 @@
+stages:
+  - test
+
+hello_gitlab:
+  stage: test
+  image: alpine:latest
+  script:
+    - echo "Hello Apollo!"
+    - echo "GitLab CI/CD Pipelines feature is now active."
