@@ -15,7 +15,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Get AUR Versions
+        id: aur-versions
+        run: |
+          VERSIONS=$(curl -s "https://aur.archlinux.org/rpc/v5/info?arg[]=bootc&arg[]=bootupd" | jq -r '.results[] | "\(.Name)-\(.Version)"' | sort | paste -sd "-" -)
+          echo "key=$VERSIONS" >> $GITHUB_OUTPUT
+      - name: Cache AUR packages
+        id: cache-aur
+        uses: actions/cache@v4
+        with:
+          path: aur-out/
+          key: ${{ runner.os }}-aur-${{ steps.aur-versions.outputs.key }}
       - name: Build AUR packages in Arch container
+        if: steps.cache-aur.outputs.cache-hit != 'true'
         run: |
           mkdir -p aur-out
           sudo podman run --rm --privileged -v $(pwd):/work -w /work docker.io/archlinux:latest bash -c '
