@@ -445,7 +445,7 @@ fn build_ui(app: &Application) {
             let rt = tokio::runtime::Runtime::new().unwrap();
             rt.block_on(async {
                 let bootc_cmd = format!(
-                    "for p in {}?*; do umount -f $p 2>/dev/null; done; bootc install to-disk --generic-image --wipe --filesystem btrfs --source-imgref docker://{} {}", 
+                    "for p in {}*; do umount -l $p 2>/dev/null; done; umount -l /run/bootc/mounts/rootfs 2>/dev/null; bootc install to-disk --generic-image --wipe --filesystem btrfs --source-imgref docker://{} {}", 
                     disk, variant, disk
                 );
                 
