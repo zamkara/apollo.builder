@@ -9,24 +9,32 @@ RUN pacman -Syu --noconfirm && \
 
 WORKDIR /home/builder
 RUN git clone https://aur.archlinux.org/bootupd.git && \
-    chown -R builder:builder bootupd
+    git clone https://aur.archlinux.org/bootc.git && \
+    chown -R builder:builder bootupd bootc
 
 WORKDIR /home/builder/bootupd
-RUN sudo -u builder makepkg -s --noconfirm && \
-    pacman -U --noconfirm *.pkg.tar.zst
+RUN sudo -u builder makepkg -s --noconfirm
+
+WORKDIR /home/builder/bootc
+RUN sudo -u builder makepkg -s --noconfirm
+
+WORKDIR /home/builder
+RUN pacman -U --noconfirm bootupd/*.pkg.tar.zst bootc/*.pkg.tar.zst
 
 # Copy final image from base
 FROM ${BASE_IMAGE}
 
-# Install runtime dependencies
+# Install runtime dependencies including ostree, skopeo and bootc
 RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm util-linux openssl grub efibootmgr dosfstools
+    pacman -S --noconfirm util-linux openssl grub efibootmgr dosfstools ostree skopeo btrfs-progs
 
-# Copy bootupd from builder stage to multiple standard paths
+# Copy bootupd and bootc from builder stage
 COPY --from=builder /usr/libexec/bootupd /usr/libexec/bootupd
 COPY --from=builder /usr/bin/bootupctl /usr/bin/bootupctl
 COPY --from=builder /usr/lib/bootupd /usr/lib/bootupd
+COPY --from=builder /usr/bin/bootc /usr/bin/bootc
 COPY --from=builder /usr/lib/systemd/system/bootloader-update.service /usr/lib/systemd/system/
+COPY --from=builder /usr/lib/systemd/system/bootc*.service /usr/lib/systemd/system/
 
 # Ensure bootupd is executable and accessible from common paths
 # bootc looks for bootupd in PATH during installation
