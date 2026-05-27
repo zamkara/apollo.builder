@@ -42,4 +42,8 @@ RUN chmod +x /usr/libexec/bootupd /usr/bin/bootupctl && \
     test -x /usr/sbin/bootupd && \
     test -x /usr/bin/bootupd && \
     echo "✓ bootupd successfully installed in multiple paths" && \
-    bootupctl backend generate-update-metadata /
+    echo -e '#!/bin/bash\necho "dummy-1.0-1,1700000000 "' > /usr/bin/rpm && \
+    chmod +x /usr/bin/rpm && \
+    mkdir -p /usr/lib/efi/dummy/1/EFI/BOOT && touch /usr/lib/efi/dummy/1/EFI/BOOT/BOOTX64.EFI && \
+    bootupctl backend generate-update-metadata / && \
+    rm -f /usr/bin/rpm
