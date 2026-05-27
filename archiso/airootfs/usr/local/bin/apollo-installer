@@ -18,15 +18,11 @@ if [ -z "$DISKS" ]; then
     exit 1
 fi
 
-# Format disks for zenity list
-# Zenity list requires parameters like: TRUE "disk1" FALSE "disk2" etc.
-# We'll just let them type the disk or use a list.
 DISK_OPTIONS=""
 while IFS= read -r line; do
     DISK_OPTIONS="$DISK_OPTIONS FALSE \"$line\""
 done <<< "$DISKS"
 
-# Since eval with zenity list can be tricky, let's use a simpler radiolist
 CHOICE=$(echo "$DISKS" | awk '{print "FALSE\n"$0}' | xargs zenity --list --title="Select Target Disk" --text="Select the disk to install Apollo Linux to. WARNING: THIS WILL ERASE THE DISK!" --radiolist --column="Select" --column="Disk")
 
 if [ -z "$CHOICE" ]; then
@@ -42,12 +38,23 @@ if [ $? -ne 0 ]; then
     exit 0
 fi
 
-IMAGE="localhost/apollo-bootupd:latest"
+VARIANT=$(zenity --list --title="Select Variant" --text="Which version of Apollo Linux do you want to install?" --radiolist --column="Select" --column="Variant" TRUE "apollo-nvidia (Nvidia Drivers)" FALSE "apollo (Standard, AMD/Intel)")
+
+if [ -z "$VARIANT" ]; then
+    zenity --info --text="Installation cancelled."
+    exit 0
+fi
+
+if [[ "$VARIANT" == *"apollo-nvidia"* ]]; then
+    IMAGE="ghcr.io/zamkara/apollo-payload:apollo-nvidia"
+else
+    IMAGE="ghcr.io/zamkara/apollo-payload:apollo"
+fi
 
 # Run the installation
 (
-echo "10"; echo "# Loading container image from installation media..."
-podman load -i /root/apollo-image.tar > /tmp/install.log 2>&1
+echo "10"; echo "# Pulling container image $IMAGE from the network..."
+podman pull $IMAGE > /tmp/install.log 2>&1
 echo "40"; echo "# Installing OS to $TARGET_DISK..."
 podman run --rm --privileged --pid=host \
   --security-opt label=type:unconfined_t \

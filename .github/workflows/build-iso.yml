@@ -8,19 +8,18 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-payload:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      packages: write
     strategy:
       fail-fast: false
       matrix:
         variant: [apollo, apollo-nvidia]
-    
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Free Disk Space (Ubuntu)
+      - name: Free Disk Space
         uses: jlumbroso/free-disk-space@main
         with:
           tool-cache: true
@@ -30,39 +29,44 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true
-      
       - name: Set up dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y podman
-      
+        run: sudo apt-get update && sudo apt-get install -y podman
       - name: Build custom Apollo image with bootupd
-        run: |
-          sudo podman build --build-arg BASE_IMAGE=ghcr.io/apollo-linux/${{ matrix.variant }}:latest -t apollo-bootupd:latest -f Containerfile .
-      
-      - name: Save container image for offline installation
-        run: |
-          mkdir -p archiso/airootfs/root/
-          sudo podman save apollo-bootupd:latest -o archiso/airootfs/root/apollo-image.tar
-      
+        run: sudo podman build --build-arg BASE_IMAGE=ghcr.io/apollo-linux/${{ matrix.variant }}:latest -t ghcr.io/${{ github.repository_owner }}/apollo-payload:${{ matrix.variant }} -f Containerfile .
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push payload image to GHCR
+        run: sudo podman push ghcr.io/${{ github.repository_owner }}/apollo-payload:${{ matrix.variant }}
+
+  build-iso:
+    needs: build-payload
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up dependencies
+        run: sudo apt-get update && sudo apt-get install -y podman
       - name: Build Live Installer ISO
         run: |
           sudo podman run --rm --privileged -v $(pwd):/work -w /work docker.io/archlinux:latest bash -c "pacman -Syu --noconfirm archiso && mkarchiso -v -w workdir/ -o out/ archiso/"
           sudo chown -R $USER:$USER out/
-          mv out/*.iso out/${{ matrix.variant }}-installer.iso
-      
+          mv out/*.iso out/apollo-installer.iso
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.variant }}-iso
-          path: out/${{ matrix.variant }}-installer.iso
-          
+          name: apollo-iso
+          path: out/apollo-installer.iso
       - name: Create Nightly Release
         uses: softprops/action-gh-release@v2
         if: github.ref == 'refs/heads/main'
         with:
           tag_name: nightly
           name: "Apollo Linux Nightly Build"
-          files: out/${{ matrix.variant }}-installer.iso
+          files: out/apollo-installer.iso
           prerelease: true
           make_latest: true

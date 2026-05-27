@@ -85,8 +85,7 @@ wvdial
 xfsprogs
 xl2tpd
 efibootmgr
-### On-ISO drivers
-nvidia-dkms
+
 ### Apollo Linux
 # Core packages
 # Fonts
