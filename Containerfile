@@ -46,4 +46,5 @@ RUN chmod +x /usr/libexec/bootupd /usr/bin/bootupctl && \
     chmod +x /usr/bin/rpm && \
     mkdir -p /usr/lib/efi/dummy/1/EFI/BOOT && touch /usr/lib/efi/dummy/1/EFI/BOOT/BOOTX64.EFI && \
     (bootupctl backend generate-update-metadata / || true) && \
-    rm -f /usr/bin/rpm
+    rm -f /usr/bin/rpm && \
+    echo 'VERSION_ID="rolling"' >> /usr/lib/os-release
