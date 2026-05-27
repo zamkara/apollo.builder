@@ -16,17 +16,18 @@ RUN sudo -u builder makepkg -s --noconfirm && \
 # Copy final image from base
 FROM ghcr.io/apollo-linux/apollo-nvidia:latest
 
-# Install runtime dependencies including bootc which is required for ostree-based installs
+# Install runtime dependencies
 RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm util-linux openssl grub efibootmgr dosfstools bootc
+    pacman -S --noconfirm util-linux openssl grub efibootmgr dosfstools
 
-# Copy bootupd from builder stage
+# Copy bootupd from builder stage to multiple standard paths
 COPY --from=builder /usr/libexec/bootupd /usr/libexec/bootupd
 COPY --from=builder /usr/bin/bootupctl /usr/bin/bootupctl
 COPY --from=builder /usr/lib/bootupd /usr/lib/bootupd
 COPY --from=builder /usr/lib/systemd/system/bootloader-update.service /usr/lib/systemd/system/
 
-# Create multiple symlinks in standard paths to ensure bootupd is discoverable
+# Ensure bootupd is executable and accessible from common paths
+# bootc looks for bootupd in PATH during installation
 RUN chmod +x /usr/libexec/bootupd /usr/bin/bootupctl && \
     ln -sf /usr/libexec/bootupd /usr/sbin/bootupd && \
     ln -sf /usr/libexec/bootupd /usr/bin/bootupd && \
@@ -34,11 +35,10 @@ RUN chmod +x /usr/libexec/bootupd /usr/bin/bootupctl && \
     bootupctl --version && \
     which bootupctl && \
     which bootupd && \
-    which bootc && \
     ls -lah /usr/libexec/bootupd && \
     ls -lah /usr/sbin/bootupd && \
     ls -lah /usr/bin/bootupd && \
     test -x /usr/libexec/bootupd && \
     test -x /usr/sbin/bootupd && \
     test -x /usr/bin/bootupd && \
-    echo "✓ bootupd and bootc successfully installed"
+    echo "✓ bootupd successfully installed in multiple paths"
