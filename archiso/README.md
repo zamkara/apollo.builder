@@ -1,31 +1,33 @@
-# blendOS ISO build scripts
-The blendOS build scripts are used to build the blendOS installation ISO images.
+# Apollo Linux Unofficial ISO Builder
+
+This repository serves as an unofficial automated builder for [Apollo Linux](https://github.com/apollo-linux/apollo). It is designed to create a Live Installer ISO that seamlessly deploys the Apollo OCI bootc container to your disk.
 
 ## Building the ISO
+The ISO is built automatically via GitHub Actions, which builds variants for standard AMD/Intel as well as Nvidia GPUs.
+
+If you wish to build it manually on an Arch Linux system:
 ### 1. Install the build tools
-```
-sudo pacman -S archiso
+```bash
+sudo pacman -S archiso podman
 ```
 ### 2. Pull the repository
+```bash
+git clone https://github.com/zamkara/apollo.builder.git
+cd apollo.builder
 ```
-git clone https://git.blendos.co/blendOS/image-builder.git
-```
-### 3. Build
-```
-cd image-builder
-sudo mkarchiso -v -w workdir/ -o out/ .
-```
-Once the building process is finished you can find the ISO image in the `./out` directory.
-### 4. Rebuilding the ISO
-When building a second time you will have to remove the `./out` and `./workdir` directories.
-```
-sudo rm -rf ./out ./workdir
+### 3. Build the Installer ISO
+```bash
+# Set your desired base image (e.g., ghcr.io/apollo-linux/apollo-nvidia:latest)
+podman build --build-arg BASE_IMAGE=ghcr.io/apollo-linux/apollo-nvidia:latest -t apollo-bootupd:latest -f Containerfile .
+mkdir -p archiso/airootfs/root/
+podman save apollo-bootupd:latest -o archiso/airootfs/root/apollo-image.tar
+sudo mkarchiso -v -w workdir/ -o out/ archiso/
 ```
 
 ## Credits
-This is based on Arkane Linux's ISO build scripts.
+This project wouldn't be possible without the incredible open-source community:
+- The base Archiso template was adapted from **blendOS** (https://git.blendos.co/blendOS/image-builder), which in turn was based on **Arkane Linux's** ISO build scripts.
+- The Archiso project by **Arch Linux**.
 
 ## Development
-Contributions, in any form, be it code or ideas are always welcome!
-### Getting started as a contributor
-Refer to the ArchWiki page on [Archiso](https://wiki.archlinux.org/title/Archiso) for information. Or follow the introductionary videos and articles by Erik Dubois on the Carli project, if you are GNU/Linux savvy the [Carli-1](https://www.arcolinuxiso.com/carli-1/) series of videos should provide you with all the information you need to get started.
+Contributions are welcome! Please ensure that you do not include specific branding unless it relates to Apollo Linux.

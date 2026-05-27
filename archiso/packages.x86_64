@@ -87,7 +87,7 @@ xl2tpd
 efibootmgr
 ### On-ISO drivers
 nvidia-dkms
-### blendOS
+### Apollo Linux
 # Core packages
 # Fonts
 noto-fonts
