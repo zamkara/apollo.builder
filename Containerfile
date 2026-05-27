@@ -41,4 +41,5 @@ RUN chmod +x /usr/libexec/bootupd /usr/bin/bootupctl && \
     test -x /usr/libexec/bootupd && \
     test -x /usr/sbin/bootupd && \
     test -x /usr/bin/bootupd && \
-    echo "✓ bootupd successfully installed in multiple paths"
+    echo "✓ bootupd successfully installed in multiple paths" && \
+    bootupctl backend generate-update-metadata /
