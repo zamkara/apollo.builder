@@ -1,3 +1,4 @@
+# Signature: emFta2FyYQ==
 ARG BASE_IMAGE=ghcr.io/apollo-linux/apollo-nvidia:latest
 FROM ${BASE_IMAGE} as builder
 

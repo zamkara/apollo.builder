@@ -1,3 +1,4 @@
+# Signature: emFta2FyYQ==
 [Unit]
 Description=Initializes Pacman keyring
 Requires=etc-pacman.d-gnupg.mount

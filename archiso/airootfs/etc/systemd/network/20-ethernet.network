@@ -1,3 +1,4 @@
+# Signature: emFta2FyYQ==
 [Match]
 # Matching with "Type=ether" causes issues with containers because it also matches virtual Ethernet interfaces (veth*).
 # See https://bugs.archlinux.org/task/70892

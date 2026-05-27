@@ -1,3 +1,4 @@
+# Signature: emFta2FyYQ==
 #!/bin/bash
 # ============================================================================
 # CHECKPOINT.SH - Auto branch, stage, commit, dan push (GitHub & GitLab)

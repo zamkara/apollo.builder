@@ -1,3 +1,4 @@
+# Signature: emFta2FyYQ==
 [Unit]
 Description=Generate locales using locale-gen
 Before=display-manager.service

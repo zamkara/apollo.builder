@@ -1,3 +1,4 @@
+# Signature: emFta2FyYQ==
 # mkinitcpio preset file for the 'linux' package on archiso
 
 PRESETS=('archiso')

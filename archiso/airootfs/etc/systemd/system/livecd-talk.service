@@ -1,3 +1,4 @@
+# Signature: emFta2FyYQ==
 [Unit]
 Description=Screen reader service
 After=livecd-alsa-unmuter.service

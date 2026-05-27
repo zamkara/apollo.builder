@@ -1,3 +1,4 @@
+# Signature: emFta2FyYQ==
 [Unit]
 Description=Choose mirror from the kernel command line
 ConditionKernelCommandLine=mirror

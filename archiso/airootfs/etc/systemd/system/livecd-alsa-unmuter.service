@@ -1,3 +1,4 @@
+# Signature: emFta2FyYQ==
 [Unit]
 Description=Unmute All Sound Card Controls For Use With The Live Arch Environment
 # This needs to run after the audio device becomes available.

@@ -1,3 +1,4 @@
+# Signature: emFta2FyYQ==
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 

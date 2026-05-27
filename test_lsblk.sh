@@ -1,3 +1,4 @@
+# Signature: emFta2FyYQ==
 #!/bin/bash
 DISKS=""
 while read -r line; do
