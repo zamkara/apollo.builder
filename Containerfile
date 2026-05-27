@@ -16,9 +16,9 @@ RUN sudo -u builder makepkg -s --noconfirm && \
 # Copy final image from base
 FROM ghcr.io/apollo-linux/apollo-nvidia:latest
 
-# Install runtime dependencies
+# Install runtime dependencies including bootc which is required for ostree-based installs
 RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm util-linux openssl grub efibootmgr dosfstools
+    pacman -S --noconfirm util-linux openssl grub efibootmgr dosfstools bootc
 
 # Copy bootupd from builder stage
 COPY --from=builder /usr/libexec/bootupd /usr/libexec/bootupd
@@ -34,10 +34,11 @@ RUN chmod +x /usr/libexec/bootupd /usr/bin/bootupctl && \
     bootupctl --version && \
     which bootupctl && \
     which bootupd && \
+    which bootc && \
     ls -lah /usr/libexec/bootupd && \
     ls -lah /usr/sbin/bootupd && \
     ls -lah /usr/bin/bootupd && \
     test -x /usr/libexec/bootupd && \
     test -x /usr/sbin/bootupd && \
     test -x /usr/bin/bootupd && \
-    echo "✓ bootupd successfully installed in multiple paths"
+    echo "✓ bootupd and bootc successfully installed"
