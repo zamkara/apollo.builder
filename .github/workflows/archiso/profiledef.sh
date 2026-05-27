@@ -29,8 +29,8 @@ file_permissions=(
   ["/etc/gshadow"]="0:0:400"
   ["/etc/sudoers"]="0:0:400"
   ["/etc/locale.gen"]="0:0:644"
-  ["/usr/local/bin/apollo-installer"]="0:0:755"
-  ["/etc/skel/Desktop/apollo-installer.desktop"]="0:0:755"
-  ["/usr/share/applications/apollo-installer.desktop"]="0:0:755"
+  ["/usr/bin/alga"]="0:0:755"
+  ["/etc/skel/Desktop/com.zamkara.alga.desktop"]="0:0:755"
+  ["/usr/share/applications/com.zamkara.alga.desktop"]="0:0:755"
   ["/etc/pacman.d/hooks/99-hide-apps.hook"]="0:0:644"
 )

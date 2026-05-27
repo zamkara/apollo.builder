@@ -117,3 +117,5 @@ xorg-server
 grub
 podman
 zenity
+gtk4
+libadwaita
