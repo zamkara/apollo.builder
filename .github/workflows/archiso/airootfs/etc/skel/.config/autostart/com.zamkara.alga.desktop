@@ -3,7 +3,7 @@
 Name=Apollo Installer
 Comment=Install Apollo Linux to your system
 Exec=alga
-Icon=com.zamkara.alga
+Icon=alga
 Terminal=false
 Type=Application
 Categories=System;Settings;
