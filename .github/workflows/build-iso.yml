@@ -85,8 +85,17 @@ jobs:
         with:
           name: aur-packages
           path: aur-packages/
+      - name: Cache Pacman Payload
+        uses: actions/cache@v4
+        with:
+          path: pacman-cache/
+          key: ${{ runner.os }}-pacman-payload-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-pacman-payload-
+      - name: Prepare Cache Dir
+        run: mkdir -p pacman-cache
       - name: Build custom Apollo image with bootupd
-        run: sudo podman build --squash-all --build-arg BASE_IMAGE=ghcr.io/apollo-linux/${{ matrix.variant }}:latest -t ghcr.io/${{ github.repository }}:${{ matrix.variant }} -f Containerfile .
+        run: sudo podman build -v $(pwd)/pacman-cache:/var/cache/pacman/pkg --squash-all --build-arg BASE_IMAGE=ghcr.io/apollo-linux/${{ matrix.variant }}:latest -t ghcr.io/${{ github.repository }}:${{ matrix.variant }} -f Containerfile .
       - name: Transfer Squashed Image to Docker
         run: |
           sudo podman save ghcr.io/${{ github.repository }}:${{ matrix.variant }} -o payload.tar
@@ -115,10 +124,26 @@ jobs:
         with:
           name: aur-packages
           path: aur-packages/
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: cargo-cache/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('.github/workflows/alga/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+      - name: Cache Pacman ISO
+        uses: actions/cache@v4
+        with:
+          path: pacman-cache/
+          key: ${{ runner.os }}-pacman-iso-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-pacman-iso-
+      - name: Prepare Cache Dirs
+        run: mkdir -p cargo-cache/registry cargo-cache/git cargo-cache/target pacman-cache
       - name: Build Live Installer ISO
         run: |
           chmod +x .github/workflows/build_iso.sh
-          sudo podman run --rm --privileged -v $(pwd):/work -w /work docker.io/archlinux:latest bash /work/.github/workflows/build_iso.sh
+          sudo podman run --rm --privileged -v $(pwd):/work -v $(pwd)/cargo-cache/registry:/root/.cargo/registry -v $(pwd)/cargo-cache/git:/root/.cargo/git -v $(pwd)/cargo-cache/target:/work/.github/workflows/alga/target -v $(pwd)/pacman-cache:/var/cache/pacman/pkg -w /work docker.io/archlinux:latest bash /work/.github/workflows/build_iso.sh
           sudo chown -R $USER:$USER out/
           mv out/*.iso out/apollo-installer.iso
       - name: Upload artifact
