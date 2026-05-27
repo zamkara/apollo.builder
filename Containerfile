@@ -26,15 +26,18 @@ COPY --from=builder /usr/bin/bootupctl /usr/bin/bootupctl
 COPY --from=builder /usr/lib/bootupd /usr/lib/bootupd
 COPY --from=builder /usr/lib/systemd/system/bootloader-update.service /usr/lib/systemd/system/
 
-# Create symbolic links and ensure bootupd is in standard paths
+# Create multiple symlinks in standard paths to ensure bootupd is discoverable
 RUN chmod +x /usr/libexec/bootupd /usr/bin/bootupctl && \
     ln -sf /usr/libexec/bootupd /usr/sbin/bootupd && \
+    ln -sf /usr/libexec/bootupd /usr/bin/bootupd && \
     echo "=== Verifying bootupd installation ===" && \
     bootupctl --version && \
     which bootupctl && \
-    which bootupd || echo "Creating bootupd symlink..." && \
+    which bootupd && \
     ls -lah /usr/libexec/bootupd && \
     ls -lah /usr/sbin/bootupd && \
+    ls -lah /usr/bin/bootupd && \
     test -x /usr/libexec/bootupd && \
     test -x /usr/sbin/bootupd && \
-    echo "✓ bootupd successfully installed"
+    test -x /usr/bin/bootupd && \
+    echo "✓ bootupd successfully installed in multiple paths"
