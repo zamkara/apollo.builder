@@ -8,25 +8,16 @@ RUN pacman -Syu --noconfirm && \
     echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 WORKDIR /home/builder
-RUN git clone https://aur.archlinux.org/bootupd.git && \
-    git clone https://aur.archlinux.org/bootc.git && \
-    chown -R builder:builder bootupd bootc
-
-WORKDIR /home/builder/bootupd
-RUN sudo -u builder makepkg -s --noconfirm
-
-WORKDIR /home/builder/bootc
-RUN sudo -u builder makepkg -s --noconfirm
-
 WORKDIR /home/builder
-RUN pacman -U --noconfirm bootupd/*.pkg.tar.zst bootc/*.pkg.tar.zst
+COPY aur-packages/*.pkg.tar.zst ./
+RUN pacman -U --noconfirm *.pkg.tar.zst
 
 # Copy final image from base
 FROM ${BASE_IMAGE}
 
 # Install runtime dependencies including ostree, skopeo and bootc
 RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm util-linux openssl grub efibootmgr dosfstools ostree skopeo btrfs-progs
+    pacman -S --noconfirm util-linux openssl grub efibootmgr dosfstools ostree skopeo btrfs-progs podman composefs
 
 # Copy bootupd and bootc from builder stage
 COPY --from=builder /usr/libexec/bootupd /usr/libexec/bootupd

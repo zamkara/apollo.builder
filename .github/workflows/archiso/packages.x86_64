@@ -118,6 +118,8 @@ grub
 bootc
 ostree
 skopeo
+podman
+composefs
 dosfstools
 btrfs-progs
 zenity

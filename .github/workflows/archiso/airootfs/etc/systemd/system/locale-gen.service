@@ -6,7 +6,7 @@ Before=display-manager.service
 [Service]
 Type=oneshot
 RemainAfterExit=true
-ExecStart=/usr/local/bin/generate_locale
+ExecStart=/usr/bin/locale-gen
 
 [Install]
 WantedBy=multi-user.target
