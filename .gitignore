@@ -1,0 +1,14 @@
+# AI Agents / IDEs
+.antigravitycli/
+.gemini/
+.cursor/
+.vscode/
+.idea/
+
+# Build artifacts
+output/
+archiso/workdir/
+archiso/out/
+*.iso
+*.img
+*.zst
