@@ -50,12 +50,34 @@ RUN for app in rygel rygel-preferences org.freedesktop.IBus.Setup org.freedeskto
         fi; \
     done
 
+# Prepare automatic app-export pacman hooks for Distrobox
+RUN mkdir -p /usr/share/ark-distrobox/hooks && \
+    echo "[Trigger]" > /usr/share/ark-distrobox/hooks/99-distrobox-export-install.hook && \
+    echo "Operation = Install" >> /usr/share/ark-distrobox/hooks/99-distrobox-export-install.hook && \
+    echo "Operation = Upgrade" >> /usr/share/ark-distrobox/hooks/99-distrobox-export-install.hook && \
+    echo "Type = Path" >> /usr/share/ark-distrobox/hooks/99-distrobox-export-install.hook && \
+    echo "Target = usr/share/applications/*.desktop" >> /usr/share/ark-distrobox/hooks/99-distrobox-export-install.hook && \
+    echo "[Action]" >> /usr/share/ark-distrobox/hooks/99-distrobox-export-install.hook && \
+    echo "Description = Exporting applications to host..." >> /usr/share/ark-distrobox/hooks/99-distrobox-export-install.hook && \
+    echo "When = PostTransaction" >> /usr/share/ark-distrobox/hooks/99-distrobox-export-install.hook && \
+    echo "NeedsTargets" >> /usr/share/ark-distrobox/hooks/99-distrobox-export-install.hook && \
+    echo "Exec = /usr/bin/bash -c 'while read -r f; do distrobox-export --app \"\$(basename \"\$f\" .desktop)\" --export-label \"none\" 2>/dev/null || true; done'" >> /usr/share/ark-distrobox/hooks/99-distrobox-export-install.hook && \
+    echo "[Trigger]" > /usr/share/ark-distrobox/hooks/99-distrobox-export-remove.hook && \
+    echo "Operation = Remove" >> /usr/share/ark-distrobox/hooks/99-distrobox-export-remove.hook && \
+    echo "Type = Path" >> /usr/share/ark-distrobox/hooks/99-distrobox-export-remove.hook && \
+    echo "Target = usr/share/applications/*.desktop" >> /usr/share/ark-distrobox/hooks/99-distrobox-export-remove.hook && \
+    echo "[Action]" >> /usr/share/ark-distrobox/hooks/99-distrobox-export-remove.hook && \
+    echo "Description = Un-exporting applications from host..." >> /usr/share/ark-distrobox/hooks/99-distrobox-export-remove.hook && \
+    echo "When = PreTransaction" >> /usr/share/ark-distrobox/hooks/99-distrobox-export-remove.hook && \
+    echo "NeedsTargets" >> /usr/share/ark-distrobox/hooks/99-distrobox-export-remove.hook && \
+    echo "Exec = /usr/bin/bash -c 'while read -r f; do distrobox-export -d --app \"\$(basename \"\$f\" .desktop)\" 2>/dev/null || true; done'" >> /usr/share/ark-distrobox/hooks/99-distrobox-export-remove.hook
+
 # Automatically create and enter Arch Linux distrobox for interactive user shells
 RUN echo 'if [[ $- == *i* ]] && [ -z "$CONTAINER_ID" ]; then' > /etc/profile.d/99-arch-distrobox.sh && \
     echo '    if [ "$EUID" -ne 0 ]; then' >> /etc/profile.d/99-arch-distrobox.sh && \
     echo '        if ! distrobox list | grep -q "arch"; then' >> /etc/profile.d/99-arch-distrobox.sh && \
     echo '            echo "Initializing Arch Linux environment..."' >> /etc/profile.d/99-arch-distrobox.sh && \
-    echo '            distrobox create --name arch --image docker.io/archlinux:latest -Y > /dev/null 2>&1' >> /etc/profile.d/99-arch-distrobox.sh && \
+    echo '            distrobox create --name arch --image docker.io/archlinux:latest --init-hooks "mkdir -p /etc/pacman.d/hooks && cp /run/host/usr/share/ark-distrobox/hooks/*.hook /etc/pacman.d/hooks/" -Y > /dev/null 2>&1' >> /etc/profile.d/99-arch-distrobox.sh && \
     echo '        fi' >> /etc/profile.d/99-arch-distrobox.sh && \
     echo '        exec distrobox enter arch' >> /etc/profile.d/99-arch-distrobox.sh && \
     echo '    fi' >> /etc/profile.d/99-arch-distrobox.sh && \
