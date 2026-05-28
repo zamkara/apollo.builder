@@ -1,5 +1,4 @@
 use libadwaita::prelude::*;
-use gtk::prelude::*;
 use libadwaita::{Application, ApplicationWindow, HeaderBar, PreferencesGroup, ActionRow};
 use gtk::{
     Box, Button, Label, Orientation, ProgressBar, ScrolledWindow, Stack, StackTransitionType,
@@ -48,7 +47,7 @@ fn main() {
             .build();
 
         app.connect_startup(|_| {
-            libadwaita::init();
+            let _ = libadwaita::init();
         });
 
         app.connect_activate(build_updater_ui);
@@ -59,7 +58,7 @@ fn main() {
             .build();
 
         app.connect_startup(|_| {
-            libadwaita::init();
+            let _ = libadwaita::init();
         });
 
         app.connect_activate(build_ui);
@@ -70,13 +69,11 @@ fn main() {
 fn build_updater_ui(app: &Application) {
     let provider = gtk::CssProvider::new();
     provider.load_from_data("
-        * { box-shadow: none !important; }
         .log-container, .log-container textview, .log-container text { 
             border-radius: 12px; 
         }
         .log-wrapper {
             border-radius: 12px;
-            overflow: hidden;
             border: none;
         }
     ");
@@ -158,6 +155,7 @@ fn build_updater_ui(app: &Application) {
         scrolled.set_visible(true);
         text_view.set_visible(true);
         
+        #[allow(deprecated)]
         let (sender, receiver) = glib::MainContext::channel(glib::Priority::DEFAULT);
         
         *pulse_timeout.borrow_mut() = Some(glib::timeout_add_local(
@@ -256,13 +254,11 @@ fn build_updater_ui(app: &Application) {
 fn build_ui(app: &Application) {
     let provider = gtk::CssProvider::new();
     provider.load_from_data("
-        * { box-shadow: none !important; }
         .log-container, .log-container textview, .log-container text { 
             border-radius: 12px; 
         }
         .log-wrapper {
             border-radius: 12px;
-            overflow: hidden;
             border: none;
         }
     ");
@@ -272,13 +268,7 @@ fn build_ui(app: &Application) {
         gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
     );
 
-    let check1 = CheckButton::builder()
-        .label("ark linux (Standard)")
-        .build();
-    let check2 = CheckButton::builder()
-        .label("ark linux (NVIDIA)")
-        .group(&check1)
-        .build();
+
 
     let window = ApplicationWindow::builder()
         .application(app)
@@ -305,6 +295,7 @@ fn build_ui(app: &Application) {
 
     let target_disk = Rc::new(RefCell::new(String::new()));
     let target_variant = Rc::new(RefCell::new(String::new()));
+    let target_zram = Rc::new(RefCell::new(String::from("auto")));
     let cancel_sender: Rc<RefCell<Option<oneshot::Sender<()>>>> = Rc::new(RefCell::new(None));
     let pulse_timeout: Rc<RefCell<Option<glib::SourceId>>> = Rc::new(RefCell::new(None));
 
@@ -399,38 +390,70 @@ fn build_ui(app: &Application) {
     page1_box.append(&footer1);
     stack.add_named(&page1_box, Some("page1"));
 
-    // --- Page 2: Variant Selection ---
+    // --- Page 2: System Configuration ---
     let page2_box = Box::new(Orientation::Vertical, 0);
-    let content2 = Box::new(Orientation::Vertical, 18);
+    let content2 = Box::new(Orientation::Vertical, 12);
     content2.set_margin_top(24);
     content2.set_margin_bottom(24);
     content2.set_margin_start(24);
     content2.set_margin_end(24);
     content2.set_vexpand(true);
     
-    let title2 = Label::builder().label("<b>Select Variant</b>").use_markup(true).halign(gtk::Align::Center).build();
+    let title2 = Label::builder().label("<b>System Configuration</b>").use_markup(true).halign(gtk::Align::Start).build();
     title2.add_css_class("title-2");
-    let subtitle2 = Label::builder().label("Choose the ark linux variant that best suits your hardware. The standard edition is ideal for Intel and AMD graphics, while the Nvidia edition comes pre-configured with proprietary drivers for optimal performance.").wrap(true).justify(gtk::Justification::Fill).build();
     
-    let pref_group2 = PreferencesGroup::new();
-    let row_var1 = ActionRow::builder().title("ark linux").subtitle("Standard edition for AMD/Intel graphics").build();
-    row_var1.add_prefix(&check1);
-    row_var1.set_activatable_widget(Some(&check1));
-    check1.set_active(true);
+    // --- Kernel Selection ---
+    let grp_kernel = PreferencesGroup::builder().description("Choose the core kernel that best suits your workflow.").build();
+    let k_linux = CheckButton::builder().build();
+    let k_zen = CheckButton::builder().group(&k_linux).build();
+    let k_lts = CheckButton::builder().group(&k_linux).build();
+    let k_hardened = CheckButton::builder().group(&k_linux).build();
     
-    let row_var2 = ActionRow::builder().title("ark linux (Nvidia)").subtitle("Includes proprietary Nvidia drivers").build();
-    row_var2.add_prefix(&check2);
-    row_var2.set_activatable_widget(Some(&check2));
+    let row_kl = ActionRow::builder().title("Ark Standard").subtitle("Default kernel").build();
+    row_kl.add_prefix(&k_linux);
+    row_kl.set_activatable_widget(Some(&k_linux));
+    k_linux.set_active(true);
     
-    pref_group2.add(&row_var1);
-    pref_group2.add(&row_var2);
+    let row_kz = ActionRow::builder().title("Ark Zen").subtitle("Desktop and gaming optimized").build();
+    row_kz.add_prefix(&k_zen);
+    row_kz.set_activatable_widget(Some(&k_zen));
     
+    let row_klts = ActionRow::builder().title("Ark LTS").subtitle("Maximum stability").build();
+    row_klts.add_prefix(&k_lts);
+    row_klts.set_activatable_widget(Some(&k_lts));
+    
+    let row_kh = ActionRow::builder().title("Ark Hardened").subtitle("Security focused").build();
+    row_kh.add_prefix(&k_hardened);
+    row_kh.set_activatable_widget(Some(&k_hardened));
+    
+    grp_kernel.add(&row_kl);
+    grp_kernel.add(&row_kz);
+    grp_kernel.add(&row_klts);
+    grp_kernel.add(&row_kh);
+    
+    // --- Graphics Switch ---
+    let row_gnv = ActionRow::builder()
+        .title("NVIDIA Drivers")
+        .subtitle("Proprietary high performance driver")
+        .build();
+    let nv_switch = Switch::builder().active(false).valign(gtk::Align::Center).build();
+    row_gnv.add_suffix(&nv_switch);
+    grp_kernel.add(&row_gnv);
+    
+    // --- zRAM Swap Size ---
+    let grp_zram = PreferencesGroup::builder().description("Select the amount of compressed RAM to use as swap space.").build();
+    let model_zram = gtk::StringList::new(&["Disabled", "2 GB", "4 GB", "8 GB", "16 GB", "Auto"]);
+    let combo_zram = libadwaita::ComboRow::builder().title("Swap Size").model(&model_zram).selected(5).build();
+    grp_zram.add(&combo_zram);
+
     content2.append(&title2);
-    content2.append(&subtitle2);
     
-    let spacer2 = Box::builder().vexpand(true).build();
-    content2.append(&spacer2);
-    content2.append(&pref_group2);
+    let scroll_box = Box::new(Orientation::Vertical, 12);
+    let scroll_conf = ScrolledWindow::builder().child(&scroll_box).vexpand(true).build();
+    scroll_box.append(&grp_kernel);
+    scroll_box.append(&grp_zram);
+    
+    content2.append(&scroll_conf);
     page2_box.append(&content2);
 
     let footer2 = Box::new(Orientation::Horizontal, 0);
@@ -620,12 +643,33 @@ fn build_ui(app: &Application) {
         }
     }));
     
-    next_btn2.connect_clicked(clone!(@weak stack, @strong target_variant, @weak check2 => move |_| {
-        if check2.is_active() {
-            *target_variant.borrow_mut() = "ghcr.io/zamkara/ark.linux:ark-nvidia".to_string();
-        } else {
-            *target_variant.borrow_mut() = "ghcr.io/zamkara/ark.linux:ark".to_string();
-        }
+    next_btn2.connect_clicked(clone!(@weak stack, @strong target_variant, @strong target_zram, @weak k_zen, @weak k_lts, @weak k_hardened, @weak nv_switch, @weak combo_zram => move |_| {
+        let kernel = if k_zen.is_active() { "zen" }
+                     else if k_lts.is_active() { "lts" }
+                     else if k_hardened.is_active() { "hardened" }
+                     else { "linux" };
+                     
+        let is_nvidia = nv_switch.is_active();
+        
+        let var_name = match (kernel, is_nvidia) {
+            ("linux", false) => "ark".to_string(),
+            ("linux", true) => "ark-nvidia".to_string(),
+            (k, false) => format!("ark-{}", k),
+            (k, true) => format!("ark-{}-nvidia", k),
+        };
+        
+        *target_variant.borrow_mut() = format!("ghcr.io/zamkara/ark.linux:{}", var_name);
+        
+        let zram_idx = combo_zram.selected();
+        *target_zram.borrow_mut() = match zram_idx {
+            0 => "disabled".to_string(),
+            1 => "2048".to_string(),
+            2 => "4096".to_string(),
+            3 => "8192".to_string(),
+            4 => "16384".to_string(),
+            _ => "auto".to_string(),
+        };
+        
         stack.set_visible_child_name("page3");
     }));
     
@@ -641,7 +685,7 @@ fn build_ui(app: &Application) {
         }
     }));
     
-    erase_btn3.connect_clicked(clone!(@weak stack, @weak text_view, @weak progress_bar, @weak cancel_btn, @weak title4, @strong target_disk, @strong target_variant, @strong cancel_sender, @strong pulse_timeout, @weak grub_switch => move |_| {
+    erase_btn3.connect_clicked(clone!(@weak stack, @weak text_view, @weak progress_bar, @weak cancel_btn, @weak title4, @strong target_disk, @strong target_variant, @strong target_zram, @strong cancel_sender, @strong pulse_timeout, @weak grub_switch => move |_| {
         stack.set_visible_child_name("page4");
         cancel_btn.set_visible(true);
         cancel_btn.set_label("Cancel Install");
@@ -656,7 +700,9 @@ fn build_ui(app: &Application) {
         
         let disk = target_disk.borrow().clone();
         let variant = target_variant.borrow().clone();
+        let zram_val = target_zram.borrow().clone();
         
+        #[allow(deprecated)]
         let (sender, receiver) = glib::MainContext::channel(glib::Priority::DEFAULT);
         let (kill_tx, mut kill_rx) = oneshot::channel::<()>();
         *cancel_sender.borrow_mut() = Some(kill_tx);
@@ -712,8 +758,8 @@ fn build_ui(app: &Application) {
             let rt = tokio::runtime::Runtime::new().unwrap();
             rt.block_on(async {
                 let bootc_cmd = format!(
-                    "killall -9 bootc skopeo 2>/dev/null || true; for p in {}*; do umount -l $p 2>/dev/null || true; done; umount -l /run/bootc/mounts/rootfs 2>/dev/null || true; btrfs device scan --forget 2>/dev/null || true; wipefs -af {}* 2>/dev/null || true; bootc install to-disk --wipe --filesystem btrfs --bootloader none --source-imgref docker://{} {}", 
-                    disk, disk, variant, disk
+                    "killall -9 bootc skopeo 2>/dev/null || true; for p in {}*; do umount -l $p 2>/dev/null || true; done; umount -l /run/bootc/mounts/rootfs 2>/dev/null || true; btrfs device scan --forget 2>/dev/null || true; wipefs -af {}* 2>/dev/null || true; bootc install to-disk --wipe --filesystem btrfs --bootloader none --source-imgref docker://{} {} && mount {}3 /mnt && DEPLOY_ETC=$(ls -d /mnt/ostree/deploy/default/deploy/*/etc | head -n 1) && mkdir -p $DEPLOY_ETC/systemd && if [ \"{}\" != \"disabled\" ]; then echo \"[zram0]\" > $DEPLOY_ETC/systemd/zram-generator.conf; echo \"compression-algorithm = zstd\" >> $DEPLOY_ETC/systemd/zram-generator.conf; if [ \"{}\" = \"auto\" ]; then echo \"zram-size = ram / 2\" >> $DEPLOY_ETC/systemd/zram-generator.conf; else echo \"zram-size = {}\" >> $DEPLOY_ETC/systemd/zram-generator.conf; fi; else rm -f $DEPLOY_ETC/systemd/zram-generator.conf; fi && umount -l /mnt", 
+                    disk, disk, variant, disk, disk, zram_val, zram_val, zram_val
                 );
                 
                 let mut child_install = tokio::process::Command::new("pkexec")

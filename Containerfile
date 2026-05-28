@@ -9,13 +9,23 @@ COPY aur-packages/*.pkg.tar.zst /tmp/
 COPY alga-binary/alga /usr/bin/alga
 RUN chmod +x /usr/bin/alga
 
-# Install core system, GNOME, and bootc dependencies
-RUN pacman -Syu --noconfirm && \
+# Determine kernel based on variant
+RUN KERNEL="linux"; \
+    if [[ "$VARIANT" == *"-zen"* ]]; then KERNEL="linux-zen"; fi; \
+    if [[ "$VARIANT" == *"-lts"* ]]; then KERNEL="linux-lts"; fi; \
+    if [[ "$VARIANT" == *"-hardened"* ]]; then KERNEL="linux-hardened"; fi; \
+    pacman -Syu --noconfirm && \
     pacman -S --noconfirm \
-    base linux linux-firmware networkmanager mkinitcpio \
+    base $KERNEL linux-firmware networkmanager mkinitcpio zram-generator \
     gnome gdm \
     util-linux openssl grub efibootmgr dosfstools ostree skopeo btrfs-progs podman composefs distrobox && \
-    if [ "$VARIANT" = "ark-nvidia" ]; then pacman -S --noconfirm nvidia-open nvidia-utils nvidia-settings; fi && \
+    if [[ "$VARIANT" == *"-nvidia" ]]; then \
+        if [ "$KERNEL" = "linux" ]; then \
+            pacman -S --noconfirm nvidia-open nvidia-utils nvidia-settings; \
+        else \
+            pacman -S --noconfirm nvidia-open-dkms ${KERNEL}-headers dkms nvidia-utils nvidia-settings; \
+        fi \
+    fi && \
     pacman -U --noconfirm /tmp/*.pkg.tar.zst && \
     rm -f /tmp/*.pkg.tar.zst
 

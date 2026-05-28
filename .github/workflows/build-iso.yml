@@ -102,7 +102,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variant: [ark, ark-nvidia]
+        variant: [ark, ark-nvidia, ark-zen, ark-zen-nvidia, ark-lts, ark-lts-nvidia, ark-hardened, ark-hardened-nvidia]
     steps:
       - uses: actions/checkout@v4
       - name: Free Disk Space
