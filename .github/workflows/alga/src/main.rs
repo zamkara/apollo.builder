@@ -17,7 +17,7 @@ fn main() {
     // Intercept CLI arguments
     let args: Vec<String> = env::args().collect();
     if args.len() > 1 && args[1] == "update" {
-        println!("🚀 Initiating Apollo OS System Update...");
+        println!("🚀 Initiating Arch Linux System Update...");
         println!("Please authenticate if prompted.");
         
         let mut child = std::process::Command::new("pkexec")
@@ -112,7 +112,7 @@ fn build_updater_ui(app: &Application) {
     content_box.append(&icon);
 
     let label = Label::builder()
-        .label("Apollo OS System Update")
+        .label("Arch Linux System Update")
         .css_classes(vec!["title-1".to_string()])
         .build();
     content_box.append(&label);
@@ -274,7 +274,7 @@ fn build_ui(app: &Application) {
 
     let window = ApplicationWindow::builder()
         .application(app)
-        .title("Apollo Installer")
+        .title("Arch Linux Installer")
         .default_width(360)  // Very narrow wizard
         .default_height(660) // Taller to fit content
         .build();

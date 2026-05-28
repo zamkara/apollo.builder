@@ -1,5 +1,4 @@
 # Signature: emFta2FyYQ==
-ARG BASE_IMAGE=ghcr.io/apollo-linux/apollo-nvidia:latest
 
 # Stage 1: Build Alga Updater
 FROM docker.io/archlinux:latest AS alga-builder
@@ -8,24 +7,31 @@ COPY .github/workflows/alga /src
 WORKDIR /src
 RUN cargo build --release
 
-# Stage 2: Final Image
-FROM ${BASE_IMAGE}
+# Stage 2: Final Image (Ark Linux)
+FROM docker.io/archlinux:latest
 
 COPY aur-packages/*.pkg.tar.zst /tmp/
 
-# Install runtime dependencies including ostree, skopeo, bootc, and bootupd
+# Install core system, GNOME, and bootc dependencies
 RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm util-linux openssl grub efibootmgr dosfstools ostree skopeo btrfs-progs podman composefs distrobox && \
+    pacman -S --noconfirm \
+    base linux linux-firmware networkmanager mkinitcpio \
+    gnome gdm \
+    util-linux openssl grub efibootmgr dosfstools ostree skopeo btrfs-progs podman composefs distrobox && \
     pacman -U --noconfirm /tmp/*.pkg.tar.zst && \
     rm -f /tmp/*.pkg.tar.zst
+
+# Enable ostree in mkinitcpio (Required for Bootc to work on Arch)
+RUN sed -i 's/\bblock filesystems\b/block ostree filesystems/g' /etc/mkinitcpio.conf && \
+    mkinitcpio -P
 
 # Copy Alga binary into the system
 COPY --from=alga-builder /src/target/release/alga /usr/bin/alga
 
-# Setup Apollo Updater desktop file
+# Setup Ark Linux Updater desktop file
 RUN echo "[Desktop Entry]" > /usr/share/applications/alga-updater.desktop && \
     echo "Name=Software Updater" >> /usr/share/applications/alga-updater.desktop && \
-    echo "Comment=Update Apollo OS" >> /usr/share/applications/alga-updater.desktop && \
+    echo "Comment=Update Arch Linux" >> /usr/share/applications/alga-updater.desktop && \
     echo "Exec=alga" >> /usr/share/applications/alga-updater.desktop && \
     echo "Icon=software-update-available-symbolic" >> /usr/share/applications/alga-updater.desktop && \
     echo "Type=Application" >> /usr/share/applications/alga-updater.desktop && \
@@ -39,21 +45,21 @@ RUN for app in rygel rygel-preferences org.freedesktop.IBus.Setup org.freedeskto
     done
 
 # Automatically create and enter Arch Linux distrobox for interactive user shells
-RUN echo 'if [[ $- == *i* ]] && [ -z "$CONTAINER_ID" ]; then' > /etc/profile.d/99-apollo-distrobox.sh && \
-    echo '    if [ "$EUID" -ne 0 ]; then' >> /etc/profile.d/99-apollo-distrobox.sh && \
-    echo '        if ! distrobox list 2>/dev/null | grep -q "\barch\b"; then' >> /etc/profile.d/99-apollo-distrobox.sh && \
-    echo '            echo "✨ Welcome to Apollo OS!"' >> /etc/profile.d/99-apollo-distrobox.sh && \
-    echo '            echo "📦 Initializing your Arch Linux subsystem for the first time..."' >> /etc/profile.d/99-apollo-distrobox.sh && \
-    echo '            distrobox create --name arch --image archlinux:latest -Y' >> /etc/profile.d/99-apollo-distrobox.sh && \
-    echo '        fi' >> /etc/profile.d/99-apollo-distrobox.sh && \
-    echo '        exec distrobox enter arch' >> /etc/profile.d/99-apollo-distrobox.sh && \
-    echo '    fi' >> /etc/profile.d/99-apollo-distrobox.sh && \
-    echo 'fi' >> /etc/profile.d/99-apollo-distrobox.sh && \
-    chmod +x /etc/profile.d/99-apollo-distrobox.sh && \
-    echo '[ -r /etc/profile.d/99-apollo-distrobox.sh ] && source /etc/profile.d/99-apollo-distrobox.sh' >> /etc/bash.bashrc
+RUN echo 'if [[ $- == *i* ]] && [ -z "$CONTAINER_ID" ]; then' > /etc/profile.d/99-arch-distrobox.sh && \
+    echo '    if [ "$EUID" -ne 0 ]; then' >> /etc/profile.d/99-arch-distrobox.sh && \
+    echo '        if ! distrobox list | grep -q "arch"; then' >> /etc/profile.d/99-arch-distrobox.sh && \
+    echo '            echo "Initializing Arch Linux environment..."' >> /etc/profile.d/99-arch-distrobox.sh && \
+    echo '            distrobox create --name arch --image docker.io/archlinux:latest -Y > /dev/null 2>&1' >> /etc/profile.d/99-arch-distrobox.sh && \
+    echo '        fi' >> /etc/profile.d/99-arch-distrobox.sh && \
+    echo '        exec distrobox enter arch' >> /etc/profile.d/99-arch-distrobox.sh && \
+    echo '    fi' >> /etc/profile.d/99-arch-distrobox.sh && \
+    echo 'fi' >> /etc/profile.d/99-arch-distrobox.sh && \
+    echo 'source /etc/profile.d/99-arch-distrobox.sh' >> /etc/bash.bashrc
+
+# Enable critical system services
+RUN systemctl enable gdm NetworkManager
 
 # Ensure bootupd is executable and accessible from common paths
-# bootc looks for bootupd in PATH during installation
 RUN chmod +x /usr/libexec/bootupd /usr/bin/bootupctl && \
     ln -sf /usr/libexec/bootupd /usr/sbin/bootupd && \
     ln -sf /usr/libexec/bootupd /usr/bin/bootupd && \
