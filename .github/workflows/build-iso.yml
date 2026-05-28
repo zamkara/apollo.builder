@@ -36,19 +36,22 @@ jobs:
 
   build-aur-packages:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [bootupd, bootc]
     steps:
       - uses: actions/checkout@v6
-      - name: Get AUR Versions
-        id: aur-versions
+      - name: Get AUR Version
+        id: aur-version
         run: |
-          VERSIONS=$(curl -s "https://aur.archlinux.org/rpc/v5/info?arg[]=bootc&arg[]=bootupd" | jq -r '.results[] | "\(.Name)-\(.Version)"' | sort | paste -sd "-" -)
-          echo "key=$VERSIONS" >> $GITHUB_OUTPUT
-      - name: Cache AUR packages
+          VERSION=$(curl -s "https://aur.archlinux.org/rpc/v5/info?arg[]=${{ matrix.package }}" | jq -r '.results[] | "\(.Name)-\(.Version)"')
+          echo "key=$VERSION" >> $GITHUB_OUTPUT
+      - name: Cache AUR package
         id: cache-aur
         uses: actions/cache@v5
         with:
           path: aur-out/
-          key: ${{ runner.os }}-aur-${{ steps.aur-versions.outputs.key }}
+          key: ${{ runner.os }}-aur-${{ steps.aur-version.outputs.key }}
       - name: Cache Pacman AUR Build
         if: steps.cache-aur.outputs.cache-hit != 'true'
         uses: actions/cache@v5
@@ -60,35 +63,28 @@ jobs:
       - name: Prepare Cache Dir
         if: steps.cache-aur.outputs.cache-hit != 'true'
         run: mkdir -p pacman-aur-cache
-      - name: Build AUR packages in Arch container
+      - name: Build AUR package in Arch container
         if: steps.cache-aur.outputs.cache-hit != 'true'
         run: |
           mkdir -p aur-out
-          sudo podman run --rm --privileged -v $(pwd):/work -v $(pwd)/pacman-aur-cache:/var/cache/pacman/pkg -w /work docker.io/archlinux:latest bash -c '
+          sudo podman run --rm --privileged -v $(pwd):/work -v $(pwd)/pacman-aur-cache:/var/cache/pacman/pkg -w /work docker.io/archlinux:latest bash -c "
             pacman -Syu --noconfirm base-devel git sudo
             useradd -m builduser
             passwd -d builduser
-            echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser
+            echo 'builduser ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/builduser
             
-            sudo -u builduser bash -c "
+            sudo -u builduser bash -c '
               cd ~
-              git clone https://aur.archlinux.org/bootupd.git
-              cd bootupd && makepkg -s --noconfirm
-            "
-            cp /home/builduser/bootupd/*.pkg.tar.zst /work/aur-out/
-            
-            sudo -u builduser bash -c "
-              cd ~
-              git clone https://aur.archlinux.org/bootc.git
-              cd bootc && makepkg -s --noconfirm
-            "
-            cp /home/builduser/bootc/*.pkg.tar.zst /work/aur-out/
-          '
+              git clone https://aur.archlinux.org/${{ matrix.package }}.git
+              cd ${{ matrix.package }} && makepkg -s --noconfirm
+            '
+            cp /home/builduser/${{ matrix.package }}/*.pkg.tar.zst /work/aur-out/
+          "
           sudo chown -R $USER:$USER aur-out/ pacman-aur-cache/
-      - name: Upload AUR packages
+      - name: Upload AUR package
         uses: actions/upload-artifact@v7
         with:
-          name: aur-packages
+          name: aur-package-${{ matrix.package }}
           path: aur-out/*.pkg.tar.zst
 
   build-payload:
@@ -118,8 +114,9 @@ jobs:
       - name: Download AUR packages
         uses: actions/download-artifact@v8
         with:
-          name: aur-packages
+          pattern: aur-package-*
           path: aur-packages/
+          merge-multiple: true
       - name: Download Alga Binary
         uses: actions/download-artifact@v8
         with:
@@ -159,8 +156,9 @@ jobs:
       - name: Download AUR packages
         uses: actions/download-artifact@v8
         with:
-          name: aur-packages
+          pattern: aur-package-*
           path: aur-packages/
+          merge-multiple: true
       - name: Download Alga Binary
         uses: actions/download-artifact@v8
         with:
