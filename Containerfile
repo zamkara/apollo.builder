@@ -29,9 +29,14 @@ RUN KERNEL="linux"; \
     pacman -U --noconfirm /tmp/*.pkg.tar.zst && \
     rm -f /tmp/*.pkg.tar.zst
 
-# Enable ostree in mkinitcpio (Required for Bootc to work on Arch)
-RUN sed -i 's/\bblock filesystems\b/block ostree filesystems/g' /etc/mkinitcpio.conf && \
+# Enable plymouth and ostree in mkinitcpio, and configure Plymouth BGRT theme for silent boot
+RUN sed -i 's/\bblock filesystems\b/block plymouth ostree filesystems/g' /etc/mkinitcpio.conf && \
+    mkdir -p /etc/plymouth && echo -e "[Daemon]\nTheme=bgrt" > /etc/plymouth/plymouthd.conf && \
     mkinitcpio -P
+
+# Setup kernel args for completely silent boot (just BIOS logo + spinner)
+RUN mkdir -p /usr/lib/bootc/kargs.d && \
+    echo 'kargs = ["quiet", "splash", "loglevel=3", "rd.udev.log_priority=3", "vt.global_cursor_default=0", "boot.shell_on_fail=1"]' > /usr/lib/bootc/kargs.d/01-silent-boot.toml
 
 
 # Setup ark linux Updater desktop file

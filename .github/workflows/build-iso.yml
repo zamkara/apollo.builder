@@ -43,7 +43,7 @@ jobs:
       - name: Get AUR Versions
         id: aur-versions
         run: |
-          VERSIONS=$(curl -s "https://aur.archlinux.org/rpc/v5/info?arg[]=bootc&arg[]=bootupd" | jq -r '.results[] | "\(.Name)-\(.Version)"' | sort | paste -sd "-" -)
+          VERSIONS=$(curl -s "https://aur.archlinux.org/rpc/v5/info?arg[]=bootc&arg[]=bootupd&arg[]=plymouth" | jq -r '.results[] | "\(.Name)-\(.Version)"' | sort | paste -sd "-" -)
           echo "key=$VERSIONS" >> $GITHUB_OUTPUT
       - name: Cache AUR packages
         id: cache-aur
@@ -85,6 +85,13 @@ jobs:
               cd bootc && makepkg -s --noconfirm
             "
             cp /home/builduser/bootc/*.pkg.tar.zst /work/aur-out/
+            
+            sudo -u builduser bash -c "
+              cd ~
+              git clone https://aur.archlinux.org/plymouth.git
+              cd plymouth && makepkg -s --noconfirm
+            "
+            cp /home/builduser/plymouth/*.pkg.tar.zst /work/aur-out/
           '
           sudo chown -R $USER:$USER aur-out/ pacman-aur-cache/
       - name: Upload AUR packages
