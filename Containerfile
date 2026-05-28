@@ -17,7 +17,7 @@ RUN KERNEL="linux"; \
     pacman -Syu --noconfirm && \
     pacman -S --noconfirm \
     base $KERNEL linux-firmware networkmanager mkinitcpio zram-generator \
-    gnome gdm \
+    gnome gnome-initial-setup gdm \
     util-linux openssl grub efibootmgr dosfstools ostree skopeo btrfs-progs podman composefs distrobox && \
     if [[ "$VARIANT" == *"-nvidia" ]]; then \
         if [ "$KERNEL" = "linux" ]; then \
