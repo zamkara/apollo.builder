@@ -39,7 +39,8 @@ RUN sed -i 's/\bblock filesystems\b/block plymouth ostree filesystems/g' /etc/mk
     mkinitcpio -P && \
     KVER=$(ls -1 /usr/lib/modules | grep -v 'extramodules' | head -n 1) && \
     IMG=$(ls -1 /boot/initramfs-*.img | grep -v 'fallback' | head -n 1) && \
-    cp $IMG /usr/lib/modules/$KVER/initramfs.img
+    cp $IMG /usr/lib/modules/$KVER/initramfs.img && \
+    rm -rf /boot/* /var/lib/pacman/sync/* /var/log/* /tmp/*
 
 # Setup kernel args for completely silent boot (just BIOS logo + spinner)
 RUN mkdir -p /usr/lib/bootc/kargs.d && \
