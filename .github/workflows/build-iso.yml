@@ -54,7 +54,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: pacman-aur-cache/
-          key: ${{ runner.os }}-pacman-aur-${{ github.sha }}
+          key: ${{ runner.os }}-pacman-aur-v1
           restore-keys: |
             ${{ runner.os }}-pacman-aur-
       - name: Prepare Cache Dir
@@ -129,7 +129,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: pacman-cache/
-          key: ${{ runner.os }}-pacman-payload-${{ matrix.variant }}-${{ github.sha }}
+          key: ${{ runner.os }}-pacman-payload-${{ matrix.variant }}-${{ hashFiles('Containerfile') }}
           restore-keys: |
             ${{ runner.os }}-pacman-payload-${{ matrix.variant }}-
             ${{ runner.os }}-pacman-payload-
@@ -170,7 +170,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: pacman-cache/
-          key: ${{ runner.os }}-pacman-iso-${{ github.sha }}
+          key: ${{ runner.os }}-pacman-iso-${{ hashFiles('.github/workflows/archiso/packages.x86_64') }}
           restore-keys: |
             ${{ runner.os }}-pacman-iso-
       - name: Prepare Cache Dirs
