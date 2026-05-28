@@ -189,6 +189,13 @@ jobs:
         run: |
           FILE_PATH="out/ark-installer.iso"
           FILENAME="ark-installer-${{ github.sha }}.iso"
+          SIZE=$(stat -c%s "$FILE_PATH")
+
+          RESPONSE=$(curl -s -X POST https://ranoz.gg/api/v1/files/upload_url -H "Content-Type: application/json" -d "{
+            \"filename\": \"$FILENAME\",
+            \"size\": $SIZE
+          }")
+          
           UPLOAD_URL=$(echo "$RESPONSE" | jq -r '.data.upload_url')
           FILE_ID=$(echo "$RESPONSE" | jq -r '.data.id')
           FILE_URL=$(echo "$RESPONSE" | jq -r '.data.url // empty')
