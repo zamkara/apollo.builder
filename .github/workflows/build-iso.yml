@@ -144,7 +144,7 @@ jobs:
         run: sudo podman push ghcr.io/${{ github.repository }}:${{ matrix.variant }}
 
   build-iso:
-    needs: build-payload
+    needs: [build-aur-packages, build-alga]
     runs-on: ubuntu-latest
     permissions:
       contents: write
