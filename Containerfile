@@ -20,7 +20,9 @@ RUN echo 'if [[ $- == *i* ]] && [ -z "$CONTAINER_ID" ]; then' > /etc/profile.d/9
     echo '        fi' >> /etc/profile.d/99-apollo-distrobox.sh && \
     echo '        exec distrobox enter arch' >> /etc/profile.d/99-apollo-distrobox.sh && \
     echo '    fi' >> /etc/profile.d/99-apollo-distrobox.sh && \
-    chmod +x /etc/profile.d/99-apollo-distrobox.sh
+    echo 'fi' >> /etc/profile.d/99-apollo-distrobox.sh && \
+    chmod +x /etc/profile.d/99-apollo-distrobox.sh && \
+    echo '[ -r /etc/profile.d/99-apollo-distrobox.sh ] && source /etc/profile.d/99-apollo-distrobox.sh' >> /etc/bash.bashrc
 
 # Ensure bootupd is executable and accessible from common paths
 # bootc looks for bootupd in PATH during installation
