@@ -2,12 +2,12 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 
-iso_name="apollo-installer"
-iso_label="APOLLO_$(date +%Y%m)"
-iso_publisher="Apollo Linux <https://github.com/zamkara/apollo>"
-iso_application="Apollo Linux Installer"
+iso_name="ark-installer"
+iso_label="ARK_$(date +%Y%m)"
+iso_publisher="Ark Linux <https://github.com/zamkara/ark>"
+iso_application="Ark Linux Installer"
 iso_version="$(date +%Y.%m.%d)"
-install_dir="apollo"
+install_dir="ark"
 buildmodes=('iso')
 bootmodes=(
   'bios.syslinux'

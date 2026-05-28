@@ -36,7 +36,7 @@ This command traces all file access attempts, allowing you to identify exactly w
 ## 5. Restoring Git Remote Configurations
 If the local repository loses its remote tracking data, restore it using the following canonical configuration:
 ```bash
-git remote add origin https://github.com/zamkara/apollo.builder.git
-git remote add gitlab git@gitlab.com:zamkara/apollo.build.git
+git remote add origin https://github.com/zamkara/ark.builder.git
+git remote add gitlab git@gitlab.com:zamkara/ark.build.git
 ```
 **Reminder:** Always use `git push origin HEAD` to trigger automated GitHub Actions builds.
