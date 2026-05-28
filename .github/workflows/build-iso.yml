@@ -86,6 +86,7 @@ jobs:
             "
             cp /home/builduser/bootc/*.pkg.tar.zst /work/aur-out/
           '
+          sudo chown -R $USER:$USER aur-out/ pacman-aur-cache/
       - name: Upload AUR packages
         uses: actions/upload-artifact@v4
         with:
@@ -127,7 +128,9 @@ jobs:
       - name: Prepare Cache Dir
         run: mkdir -p pacman-cache
       - name: Build custom ark image with bootupd
-        run: sudo podman build -v $(pwd)/pacman-cache:/var/cache/pacman/pkg --squash-all --build-arg VARIANT=${{ matrix.variant }} -t ghcr.io/${{ github.repository }}:${{ matrix.variant }} -f Containerfile .
+        run: |
+          sudo podman build -v $(pwd)/pacman-cache:/var/cache/pacman/pkg --squash-all --build-arg VARIANT=${{ matrix.variant }} -t ghcr.io/${{ github.repository }}:${{ matrix.variant }} -f Containerfile .
+          sudo chown -R $USER:$USER pacman-cache/
       - name: Log in to the Container registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Push payload image to GHCR
@@ -165,7 +168,7 @@ jobs:
         run: |
           chmod +x .github/workflows/build_iso.sh
           sudo podman run --rm --privileged -v $(pwd):/work -v $(pwd)/pacman-cache:/var/cache/pacman/pkg -w /work docker.io/archlinux:latest bash /work/.github/workflows/build_iso.sh
-          sudo chown -R $USER:$USER out/
+          sudo chown -R $USER:$USER out/ pacman-cache/
           mv out/*.iso out/ark-installer.iso
       - name: Upload artifact
         uses: actions/upload-artifact@v4
