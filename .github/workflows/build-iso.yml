@@ -129,9 +129,9 @@ jobs:
       - name: Build custom ark image with bootupd
         run: sudo podman build -v $(pwd)/pacman-cache:/var/cache/pacman/pkg --squash-all --build-arg VARIANT=${{ matrix.variant }} -t ghcr.io/${{ github.repository }}:${{ matrix.variant }} -f Containerfile .
       - name: Log in to the Container registry
-        run: podman login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Push payload image to GHCR
-        run: podman push ghcr.io/${{ github.repository }}:${{ matrix.variant }}
+        run: sudo podman push ghcr.io/${{ github.repository }}:${{ matrix.variant }}
 
   build-iso:
     needs: build-payload
