@@ -15,7 +15,7 @@ if you appreciate vanilla arch linux but desire the smart atomic updates of immu
 ## installation
 manual arch linux terminal installation is no longer required.
 1. download the latest installer iso from the **releases** page.
-2. flash to a usb drive and boot your machine.
+2. flash to a usb drive and boot your machine (if prompted for a live login, use user: `ark`, password: `arklinux`).
 3. you will be greeted by a rust-based gui installer that seamlessly deploys *ark linux* in minutes.
 
 ## zero-maintenance architecture

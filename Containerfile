@@ -20,7 +20,7 @@ RUN KERNEL="linux"; \
     pacman -Syu --noconfirm && \
     pacman -S --noconfirm \
     base $KERNEL linux-firmware networkmanager mkinitcpio zram-generator \
-    gnome gnome-initial-setup gdm plymouth \
+    gnome-shell gnome-control-center gnome-disk-utility gnome-keyring gnome-session gnome-settings-daemon gnome-text-editor nautilus xdg-desktop-portal-gnome xdg-user-dirs-gtk gnome-backgrounds gnome-console gnome-initial-setup gdm plymouth \
     util-linux openssl grub efibootmgr dosfstools ostree skopeo btrfs-progs podman composefs distrobox && \
     if [[ "$VARIANT" == *"-nvidia" ]]; then \
         if [ "$KERNEL" = "linux" ]; then \
@@ -40,7 +40,7 @@ RUN sed -i 's/\bblock filesystems\b/block plymouth ostree filesystems/g' /etc/mk
     KVER=$(ls -1 /usr/lib/modules | grep -v 'extramodules' | head -n 1) && \
     IMG=$(ls -1 /boot/initramfs-*.img | grep -v 'fallback' | head -n 1) && \
     cp $IMG /usr/lib/modules/$KVER/initramfs.img && \
-    rm -rf /boot/* /var/lib/pacman/sync/* /var/log/* /tmp/*
+    rm -rf /boot/* /var/lib/pacman/sync/* /var/log/* /tmp/* /usr/share/doc/* /usr/share/man/* /usr/share/info/*
 
 # Setup kernel args for completely silent boot (just BIOS logo + spinner)
 RUN mkdir -p /usr/lib/bootc/kargs.d && \

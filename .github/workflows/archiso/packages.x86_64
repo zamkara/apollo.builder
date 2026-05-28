@@ -5,7 +5,6 @@ arch-install-scripts
 base
 bash
 bash-completion
-bind
 btrfs-progs
 cryptsetup
 dhclient
@@ -14,7 +13,6 @@ dnsmasq
 dosfstools
 e2fsprogs
 exfatprogs
-f2fs-tools
 fatresize
 gpart
 gptfdisk
@@ -26,8 +24,6 @@ libfido2
 libusb-compat
 linux
 linux-firmware
-man-db
-man-pages
 mdadm
 mkinitcpio
 mkinitcpio-archiso
@@ -37,7 +33,6 @@ mtools
 nano
 nbd
 nfs-utils
-nilfs-utils
 ntfs-3g
 parted
 pcsclite
@@ -48,7 +43,6 @@ smartmontools
 squashfs-tools
 sudo
 tpm2-tss
-udftools
 usb_modeswitch
 usbmuxd
 usbutils
