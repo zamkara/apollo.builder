@@ -196,5 +196,5 @@ jobs:
             
             [Download](${{ steps.ranoz-upload.outputs.DOWNLOAD_URL }}) (Expires on ${{ steps.ranoz-upload.outputs.EXPIRATION_DATE }})
           files: out/ark-installer.iso
-          prerelease: true
+          prerelease: false
           make_latest: true

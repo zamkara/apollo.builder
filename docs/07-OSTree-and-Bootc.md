@@ -1,6 +1,6 @@
 # OSTree and Bootc Architecture
 
-Understanding the foundational technologies driving ark OS is critical for advanced development and maintenance. The filesystem structure deviates significantly from traditional package-based Linux distributions.
+Understanding the foundational technologies driving ark linux is critical for advanced development and maintenance. The filesystem structure deviates significantly from traditional package-based Linux distributions.
 
 ## 1. OSTree: "Git for Operating Systems"
 OSTree is a technology designed to manage bootable, immutable, and versionable filesystem trees. It operates on the concept of content-addressable object stores, similar to Git, but optimized for operating system binaries.
@@ -9,7 +9,7 @@ OSTree is a technology designed to manage bootable, immutable, and versionable f
 - During the boot process, the kernel mounts hardlinks from the object store in `/ostree` to construct the active root filesystem. This architecture ensures rapid boot times, prevents accidental user corruption, and mathematically eliminates dependency conflicts.
 
 ## 2. A/B Partitioning and Atomic Updates
-ark OS implements atomic updates. System upgrades never overwrite the active, running filesystem.
+ark linux implements atomic updates. System upgrades never overwrite the active, running filesystem.
 
 **The Update Lifecycle:**
 1. The user initiates a system update via `bootc upgrade`.
@@ -28,9 +28,9 @@ Because `/usr` is immutable, applications and user configurations must adapt to 
 
 ## 4. Derived Container Images
 The primary advantage of `bootc` is the triviality of creating derived operating systems.
-Creating a specialized variant of ark OS requires only a standard Containerfile:
+Creating a specialized variant of ark linux requires only a standard Containerfile:
 ```dockerfile
-FROM ghcr.io/zamkara/ark.linux-nvidia:latest
+FROM ghcr.io/zamkara/ark.linux:ark-nvidia:latest
 RUN pacman -S --noconfirm steam lutris
 ```
 This enables developers to construct tailored, bootable infrastructure images seamlessly.

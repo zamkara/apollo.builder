@@ -1,13 +1,13 @@
 # Local Testing and Virtualization
 
-Testing ark OS locally before deploying to bare metal is a critical part of the development lifecycle. This document outlines the standard procedures for virtualized testing.
+Testing ark linux locally before deploying to bare metal is a critical part of the development lifecycle. This document outlines the standard procedures for virtualized testing.
 
 ## Recommended Environment: GNOME Boxes / QEMU
-ark OS heavily leverages modern Linux kernel features (such as BTRFS and OSTree). Virtualization tools that provide close-to-metal acceleration, like GNOME Boxes (powered by QEMU/KVM), are highly recommended over Type-2 hypervisors like VirtualBox.
+ark linux heavily leverages modern Linux kernel features (such as BTRFS and OSTree). Virtualization tools that provide close-to-metal acceleration, like GNOME Boxes (powered by QEMU/KVM), are highly recommended over Type-2 hypervisors like VirtualBox.
 
 ### Virtual Machine Configuration
-When creating a virtual machine to test the ark OS `.iso` artifact, ensure the following parameters are met:
-1. **Firmware:** The VM must be configured to use **UEFI**. ark OS does not support legacy BIOS booting. Ensure OVMF (Open Virtual Machine Firmware) is active in the hypervisor settings.
+When creating a virtual machine to test the ark linux `.iso` artifact, ensure the following parameters are met:
+1. **Firmware:** The VM must be configured to use **UEFI**. ark linux does not support legacy BIOS booting. Ensure OVMF (Open Virtual Machine Firmware) is active in the hypervisor settings.
 2. **Storage:** Allocate a virtual block device of at least 20 GB. The installer (`alga`) expects an unallocated, unformatted drive.
 3. **Memory:** Allocate a minimum of 4 GB of RAM to prevent Out-Of-Memory (OOM) errors during the intense I/O operations of the `bootc` deployment phase.
 

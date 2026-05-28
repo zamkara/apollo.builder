@@ -1,13 +1,13 @@
-# ark OS Documentation
+# ark linux Documentation
 
-Welcome to the official documentation for ark OS. This repository contains the technical blueprints, architecture decisions, and operational guidelines that define the project.
+Welcome to the official documentation for ark linux. This repository contains the technical blueprints, architecture decisions, and operational guidelines that define the project.
 
 This knowledge base serves as a permanent reference for developers and contributors to ensure consistency and prevent the loss of critical context.
 
 ## Table of Contents
 
 1. **[Architecture and Vision](Architecture-and-Vision.md)**
-   An overview of the ark OS architecture, combining OSTree, bootc containers, and the custom GTK4 Rust installer (`alga`).
+   An overview of the ark linux architecture, combining OSTree, bootc containers, and the custom GTK4 Rust installer (`alga`).
    
 2. **[Bootloader Implementation](Bootloader-Implementation.md)**
    Documentation detailing the technical decisions regarding the bootloader, specifically the transition from upstream `bootupd` to a native `bootctl install` approach via the installer.
@@ -31,4 +31,4 @@ This knowledge base serves as a permanent reference for developers and contribut
    Diagnostic procedures for kernel locks, boot failures, and accessing emergency TTY consoles during installation.
 
 9. **[Local Testing and Virtualization](09-Local-Testing.md)**
-   Guidelines and prerequisites for testing ark OS ISO artifacts locally using hypervisors like GNOME Boxes and QEMU.
+   Guidelines and prerequisites for testing ark linux ISO artifacts locally using hypervisors like GNOME Boxes and QEMU.

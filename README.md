@@ -1,22 +1,23 @@
 # ark linux
 
-ini bukan sebuah distro baru, tidak ada visi muluk-muluk, dan tidak ada branding agresif.
-**ark linux** literaly hanyalah **arch linux vanila** yang dikemas ke dalam arsitektur *immutable container* (oci/bootc). itu saja bedanya.
+this is not a new distribution. there is no grandiose vision, nor is there aggressive branding.
+**ark linux** is literally just **vanilla arch linux** wrapped within an immutable container architecture (oci/bootc). that is the only difference.
 
-jika anda menyukai arch linux polos, namun menginginkan fitur *smart atomic updates* layaknya fedora silverblue tanpa takut sistem *break*, maka ark linux adalah wadah yang tepat. tidak ada *bloatware*, tidak ada tema *custom*, hanya arch linux yang kebal terhadap kerusakan pembaruan.
+if you appreciate vanilla arch linux but desire the smart atomic updates of immutable operating systems without the fear of system breakage, ark linux is the perfect vessel. there is no bloatware, no custom themes, just arch linux rendered immune to update failures.
 
-## fitur utama
-- **100% arch linux murni**: menggunakan `docker.io/archlinux:latest` langsung sebagai *base image* tanpa campur tangan repositori pihak ketiga.
-- **immutable & atomic**: sistem file *read-only* dengan pembaruan *delta*. jika *update* rusak, anda cukup me-*rollback* melalui menu grub.
-- **smart updater**: aplikasi updater bawaan ringan berbasis rust & gtk4 (`alga`) yang mendeteksi status os.
-- **nvidia ready**: otomatis menyediakan varian yang sudah dipasangi *proprietary nvidia drivers*.
+## key features
+- **100% pure arch linux**: utilises `docker.io/archlinux:latest` directly as the base image without third-party repositories.
+- **immutable & atomic**: read-only file system with delta updates. should an update fail, you simply roll back via the grub menu.
+- **smart updater**: a lightweight, rust & gtk4-based updater application (`alga`) that automatically detects the os state.
+- **nvidia ready**: automatically provides a variant pre-configured with proprietary nvidia drivers.
+- **production ready**: as this pulls directly from official arch linux, this is not a work-in-progress or pre-release. it is stable and ready for daily use.
 
-## instalasi
-anda tidak perlu melakukan instalasi arch linux secara manual melalui terminal.
-1. unduh iso installer terbaru di kolom **releases**.
-2. *flash* ke usb dan *boot* di pc anda.
-3. anda akan langsung dihadapkan dengan gui installer rust yang akan memasang *ark linux* secara *seamless* dalam hitungan menit.
+## installation
+manual arch linux terminal installation is no longer required.
+1. download the latest installer iso from the **releases** page.
+2. flash to a usb drive and boot your machine.
+3. you will be greeted by a rust-based gui installer that seamlessly deploys *ark linux* in minutes.
 
-## arsitektur pemeliharaan (zero-maintenance)
-karena ark linux bukanlah distro terpisah, pembaruan ditarik langsung dari *mirror* arch linux melalui github actions setiap hari minggu. *base image* akan otomatis di-*build* dan di-*push* ke github container registry.
-sistem pc anda hanya perlu menarik perbedaan lapisannya (delta), melakukan pembaruan di latar belakang tanpa mengganggu alur kerja, lalu berlaku pada *reboot* selanjutnya.
+## zero-maintenance architecture
+as ark linux is not a separate distribution, updates are pulled directly from the official arch linux mirrors via github actions every sunday. the base image is automatically built and pushed to the github container registry.
+your local machine simply pulls the delta layers, updates quietly in the background without interrupting your workflow, and applies the changes upon the next reboot.

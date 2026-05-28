@@ -1,6 +1,6 @@
 # Alga Source Code Architecture
 
-The `alga` installer (`/src/main.rs`) is the operational core of the ark OS installation process. Built with Rust and GTK4 (via the `gtk4-rs` bindings and `libadwaita`), it manages system deployment while maintaining a highly responsive graphical interface.
+The `alga` installer (`/src/main.rs`) is the operational core of the ark linux installation process. Built with Rust and GTK4 (via the `gtk4-rs` bindings and `libadwaita`), it manages system deployment while maintaining a highly responsive graphical interface.
 
 ## 1. Graphical User Interface (GUI) Integration
 The primary UI initialization occurs within the `build_ui(app: &Application)` function.
