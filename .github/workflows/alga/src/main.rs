@@ -10,9 +10,36 @@ use tokio::io::{AsyncBufReadExt, BufReader};
 use glib::clone;
 use std::rc::Rc;
 use std::cell::RefCell;
+use std::env;
 use tokio::sync::oneshot;
 
 fn main() {
+    // Intercept CLI arguments
+    let args: Vec<String> = env::args().collect();
+    if args.len() > 1 && args[1] == "update" {
+        println!("🚀 Initiating Apollo OS System Update...");
+        println!("Please authenticate if prompted.");
+        
+        let mut child = std::process::Command::new("pkexec")
+            .arg("bootc")
+            .arg("upgrade")
+            .stdin(Stdio::inherit())
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .spawn()
+            .expect("Failed to launch bootc upgrade");
+
+        let status = child.wait().expect("Failed to wait on bootc");
+        
+        if status.success() {
+            println!("✅ System update completed successfully! Please reboot your system.");
+        } else {
+            println!("❌ System update failed with status: {}", status);
+        }
+        
+        return;
+    }
+
     let app = Application::builder()
         .application_id("com.zamkara.alga")
         .build();
