@@ -1,7 +1,7 @@
 # Signature: emFta2FyYQ==
 [Desktop Entry]
-Name=Ark Installer
-Comment=Install Ark Linux to your system
+Name=ark Installer
+Comment=Install ark linux to your system
 Exec=alga
 Icon=alga
 Terminal=false

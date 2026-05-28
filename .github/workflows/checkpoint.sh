@@ -7,7 +7,7 @@
 # 1. Jalankan `git diff` dan `git diff --cached` untuk melihat semua perubahan
 # 2. Jalankan `git status` untuk melihat file baru (untracked)
 # 3. Identifikasi fitur utama dan fix dari diff, buat judul branch format:
-#    feat/ARK-{DDMMYYHHMM}-{judul-kecil-yang-mewakili-keseluruhan}
+#    feat/ark-{DDMMYYHHMM}-{judul-kecil-yang-mewakili-keseluruhan}
 # 4. Update BRANCH_NAME di bawah dengan judul yang sesuai
 # 5. Tulis commit message yang mencakup ringkasan dan detail
 # 6. Simpan file, user tinggal jalankan ./checkpoint.sh
@@ -15,7 +15,7 @@
 
 TIMESTAMP=$(date +"%d%m%y%H%M")
 
-BRANCH_NAME="feat/ARK-${TIMESTAMP}-setup-checkpoint-script"
+BRANCH_NAME="feat/ark-${TIMESTAMP}-setup-checkpoint-script"
 
 if git rev-parse --verify "$BRANCH_NAME" >/dev/null 2>&1; then
   git checkout "$BRANCH_NAME"

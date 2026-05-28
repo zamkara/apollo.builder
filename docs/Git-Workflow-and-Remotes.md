@@ -1,16 +1,16 @@
 # Git Workflow and Remotes
 
-This document outlines the standard Git workflow and repository configuration for Ark OS. Adhering to these guidelines is critical to maintaining build pipeline integrity and preventing desynchronization.
+This document outlines the standard Git workflow and repository configuration for ark OS. Adhering to these guidelines is critical to maintaining build pipeline integrity and preventing desynchronization.
 
 ## Remote Configuration
 The local development environment is configured with two distinct Git remotes:
 1. `gitlab`: The repository hosted on GitLab (`git@gitlab.com:zamkara/ark.build.git`).
-2. `origin`: The repository hosted on GitHub (`https://github.com/zamkara/ark.builder.git`).
+2. `origin`: The repository hosted on GitHub (`https://github.com/zamkara/ark.linux.git`).
 
 ## The Golden Rule: GitHub as the Primary Build Source
 **All code modifications, feature branches, and releases MUST be pushed to GitHub (`origin`).**
 
-**Rationale:** The Ark OS Continuous Integration (CI) pipeline relies exclusively on GitHub Actions. The automated processes that construct the container image, compile the Alga installer, and generate the final bootable `.iso` artifact are triggered by commits pushed to the GitHub repository. Pushing changes to the GitLab remote will bypass the CI pipeline entirely, resulting in no updated ISO being generated.
+**Rationale:** The ark OS Continuous Integration (CI) pipeline relies exclusively on GitHub Actions. The automated processes that construct the container image, compile the Alga installer, and generate the final bootable `.iso` artifact are triggered by commits pushed to the GitHub repository. Pushing changes to the GitLab remote will bypass the CI pipeline entirely, resulting in no updated ISO being generated.
 
 ## Preventing Accidental Pushes
 To avoid pushing code to the incorrect remote due to default branch tracking configurations, developers must explicitly specify the remote when pushing critical updates.

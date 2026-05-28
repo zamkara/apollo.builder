@@ -3,9 +3,9 @@
 # shellcheck disable=SC2034
 
 iso_name="ark-installer"
-iso_label="ARK_$(date +%Y%m)"
-iso_publisher="Ark Linux <https://github.com/zamkara/ark>"
-iso_application="Ark Linux Installer"
+iso_label="ark_$(date +%Y%m)"
+iso_publisher="ark linux <https://github.com/zamkara/ark>"
+iso_application="ark linux Installer"
 iso_version="$(date +%Y.%m.%d)"
 install_dir="ark"
 buildmodes=('iso')

@@ -1,9 +1,9 @@
 # Builder Mechanics and Automated ISO Generation
 
-This document explains the infrastructure responsible for compiling and generating Ark OS. The operating system is fully automated and constructed via GitHub Actions and OCI Containerfiles, eliminating manual build errors.
+This document explains the infrastructure responsible for compiling and generating ark OS. The operating system is fully automated and constructed via GitHub Actions and OCI Containerfiles, eliminating manual build errors.
 
 ## 1. The Containerfile Architecture
-The `Containerfile` dictates the exact composition of the operating system. Unlike traditional Linux distributions that assemble the OS via prolonged `chroot` scripts during installation, Ark OS is pre-assembled as a container image.
+The `Containerfile` dictates the exact composition of the operating system. Unlike traditional Linux distributions that assemble the OS via prolonged `chroot` scripts during installation, ark OS is pre-assembled as a container image.
 
 Key phases within the `Containerfile`:
 - **Base Image Acquisition:** `FROM ghcr.io/zamkara/ark.linux-nvidia:latest`. This utilizes a pre-configured Arch Linux base image containing proprietary NVIDIA drivers and the default desktop environment provided by the upstream maintainers.

@@ -1,6 +1,6 @@
 # Signature: emFta2FyYQ==
-NAME="Ark Linux Installer"
-PRETTY_NAME="Ark Linux Installer"
+NAME="ark linux Installer"
+PRETTY_NAME="ark linux Installer"
 ID=ark
 BUILD_ID=rolling
 ANSI_COLOR="38;2;23;147;209"

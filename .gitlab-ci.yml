@@ -6,5 +6,5 @@ hello_gitlab:
   stage: test
   image: alpine:latest
   script:
-    - echo "Hello Ark!"
+    - echo "Hello ark!"
     - echo "GitLab CI/CD Pipelines feature is now active."

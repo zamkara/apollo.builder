@@ -8,7 +8,7 @@ COPY .github/workflows/alga /src
 WORKDIR /src
 RUN cargo build --release
 
-# Stage 2: Final Image (Ark Linux)
+# Stage 2: Final Image (ark linux)
 FROM docker.io/archlinux:latest
 ARG VARIANT
 
@@ -31,7 +31,7 @@ RUN sed -i 's/\bblock filesystems\b/block ostree filesystems/g' /etc/mkinitcpio.
 # Copy Alga binary into the system
 COPY --from=alga-builder /src/target/release/alga /usr/bin/alga
 
-# Setup Ark Linux Updater desktop file
+# Setup ark linux Updater desktop file
 RUN echo "[Desktop Entry]" > /usr/share/applications/alga-updater.desktop && \
     echo "Name=Software Updater" >> /usr/share/applications/alga-updater.desktop && \
     echo "Comment=Update Arch Linux" >> /usr/share/applications/alga-updater.desktop && \

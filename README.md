@@ -1,34 +1,22 @@
+# ark linux
 
-# Ark Linux Unofficial ISO Builder
+ini bukan sebuah distro baru, tidak ada visi muluk-muluk, dan tidak ada branding agresif.
+**ark linux** literaly hanyalah **arch linux vanila** yang dikemas ke dalam arsitektur *immutable container* (oci/bootc). itu saja bedanya.
 
-This repository serves as an unofficial automated builder for [Ark Linux](https://github.com/zamkara/ark.linux). It is designed to create a Live Installer ISO that seamlessly deploys the Ark OCI bootc container to your disk.
+jika anda menyukai arch linux polos, namun menginginkan fitur *smart atomic updates* layaknya fedora silverblue tanpa takut sistem *break*, maka ark linux adalah wadah yang tepat. tidak ada *bloatware*, tidak ada tema *custom*, hanya arch linux yang kebal terhadap kerusakan pembaruan.
 
-## Building the ISO
-The ISO is built automatically via GitHub Actions, which builds variants for standard AMD/Intel as well as Nvidia GPUs.
+## fitur utama
+- **100% arch linux murni**: menggunakan `docker.io/archlinux:latest` langsung sebagai *base image* tanpa campur tangan repositori pihak ketiga.
+- **immutable & atomic**: sistem file *read-only* dengan pembaruan *delta*. jika *update* rusak, anda cukup me-*rollback* melalui menu grub.
+- **smart updater**: aplikasi updater bawaan ringan berbasis rust & gtk4 (`alga`) yang mendeteksi status os.
+- **nvidia ready**: otomatis menyediakan varian yang sudah dipasangi *proprietary nvidia drivers*.
 
-If you wish to build it manually on an Arch Linux system:
-### 1. Install the build tools
-```bash
-sudo pacman -S archiso podman
-```
-### 2. Pull the repository
-```bash
-git clone https://github.com/zamkara/ark.builder.git
-cd ark.builder
-```
-### 3. Build the Installer ISO
-```bash
-# Set your desired base image (e.g., ghcr.io/zamkara/ark.linux-nvidia:latest)
-podman build --build-arg BASE_IMAGE=ghcr.io/zamkara/ark.linux-nvidia:latest -t ark-bootupd:latest -f Containerfile .
-mkdir -p archiso/airootfs/root/
-podman save ark-bootupd:latest -o archiso/airootfs/root/ark-image.tar
-sudo mkarchiso -v -w workdir/ -o out/ archiso/
-```
+## instalasi
+anda tidak perlu melakukan instalasi arch linux secara manual melalui terminal.
+1. unduh iso installer terbaru di kolom **releases**.
+2. *flash* ke usb dan *boot* di pc anda.
+3. anda akan langsung dihadapkan dengan gui installer rust yang akan memasang *ark linux* secara *seamless* dalam hitungan menit.
 
-## Credits
-This project wouldn't be possible without the incredible open-source community:
-- The base Archiso template was adapted from **blendOS** (https://git.blendos.co/blendOS/image-builder), which in turn was based on **Arkane Linux's** ISO build scripts.
-- The Archiso project by **Arch Linux**.
-
-## Development
-Contributions are welcome! Please ensure that you do not include specific branding unless it relates to Ark Linux.
+## arsitektur pemeliharaan (zero-maintenance)
+karena ark linux bukanlah distro terpisah, pembaruan ditarik langsung dari *mirror* arch linux melalui github actions setiap hari minggu. *base image* akan otomatis di-*build* dan di-*push* ke github container registry.
+sistem pc anda hanya perlu menarik perbedaan lapisannya (delta), melakukan pembaruan di latar belakang tanpa mengganggu alur kerja, lalu berlaku pada *reboot* selanjutnya.

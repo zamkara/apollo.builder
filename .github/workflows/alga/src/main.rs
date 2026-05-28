@@ -273,10 +273,10 @@ fn build_ui(app: &Application) {
     );
 
     let check1 = CheckButton::builder()
-        .label("Ark Linux (Standard)")
+        .label("ark linux (Standard)")
         .build();
     let check2 = CheckButton::builder()
-        .label("Ark Linux (NVIDIA)")
+        .label("ark linux (NVIDIA)")
         .group(&check1)
         .build();
 
@@ -373,7 +373,7 @@ fn build_ui(app: &Application) {
         pref_group1.add(&ActionRow::builder().title("No physical drives found").build());
     }
 
-    let title1 = Label::builder().label("<b>Welcome to Ark OS</b>").use_markup(true).halign(gtk::Align::Center).build();
+    let title1 = Label::builder().label("<b>Welcome to ark OS</b>").use_markup(true).halign(gtk::Align::Center).build();
     title1.add_css_class("title-2");
     let subtitle1 = Label::builder().label("Please select the internal physical drive where you would like to install your new system. External drives are hidden for your safety.").wrap(true).justify(gtk::Justification::Fill).build();
 
@@ -410,15 +410,15 @@ fn build_ui(app: &Application) {
     
     let title2 = Label::builder().label("<b>Select Variant</b>").use_markup(true).halign(gtk::Align::Center).build();
     title2.add_css_class("title-2");
-    let subtitle2 = Label::builder().label("Choose the Ark Linux variant that best suits your hardware. The standard edition is ideal for Intel and AMD graphics, while the Nvidia edition comes pre-configured with proprietary drivers for optimal performance.").wrap(true).justify(gtk::Justification::Fill).build();
+    let subtitle2 = Label::builder().label("Choose the ark linux variant that best suits your hardware. The standard edition is ideal for Intel and AMD graphics, while the Nvidia edition comes pre-configured with proprietary drivers for optimal performance.").wrap(true).justify(gtk::Justification::Fill).build();
     
     let pref_group2 = PreferencesGroup::new();
-    let row_var1 = ActionRow::builder().title("Ark Linux").subtitle("Standard edition for AMD/Intel graphics").build();
+    let row_var1 = ActionRow::builder().title("ark linux").subtitle("Standard edition for AMD/Intel graphics").build();
     row_var1.add_prefix(&check1);
     row_var1.set_activatable_widget(Some(&check1));
     check1.set_active(true);
     
-    let row_var2 = ActionRow::builder().title("Ark Linux (Nvidia)").subtitle("Includes proprietary Nvidia drivers").build();
+    let row_var2 = ActionRow::builder().title("ark linux (Nvidia)").subtitle("Includes proprietary Nvidia drivers").build();
     row_var2.add_prefix(&check2);
     row_var2.set_activatable_widget(Some(&check2));
     
@@ -456,7 +456,7 @@ fn build_ui(app: &Application) {
     title3.add_css_class("title-2");
     
     let info_text = "<b>Action Cannot Be Undone</b>\n\n\
-                     You are about to install Ark OS onto your physical drive. \
+                     You are about to install ark OS onto your physical drive. \
                      By proceeding, you authorize the installer to reformat the entire device.\n\n\
                      All partitions will be destroyed and all existing operating systems will be erased. \
                      Furthermore, all personal files, documents, and data on this drive will be permanently lost.\n\n\
@@ -520,7 +520,7 @@ fn build_ui(app: &Application) {
     content4.set_margin_end(24);
     content4.set_vexpand(true);
     
-    let title4 = Label::builder().label("<b>Installing Ark OS...</b>").use_markup(true).halign(gtk::Align::Start).build();
+    let title4 = Label::builder().label("<b>Installing ark OS...</b>").use_markup(true).halign(gtk::Align::Start).build();
     title4.add_css_class("title-2");
     
     let progress_bar = ProgressBar::builder().show_text(false).build();
@@ -573,7 +573,7 @@ fn build_ui(app: &Application) {
     
     let title5 = Label::builder().label("<b>Installation Complete!</b>").use_markup(true).build();
     title5.add_css_class("title-1");
-    let success_lbl = Label::new(Some("Ark OS is successfully installed."));
+    let success_lbl = Label::new(Some("ark OS is successfully installed."));
     content5.append(&title5);
     content5.append(&success_lbl);
     page5_box.append(&content5);
@@ -763,7 +763,7 @@ fn build_ui(app: &Application) {
                         let _ = sender.send("95% Installing bootloader...".to_string());
                         let bootloader_cmd = format!(
                             "EFI_PART=$(lsblk -rno PATH,PARTTYPE {} | grep -i 'c12a7328-f81f-11d2-ba4b-00a0c93ec93b' | head -n1 | awk '{{print $1}}'); ROOT_PART=$(lsblk -rno PATH,PARTTYPE {} | grep -i '4f68bce3-e8cd-4db1-96e7-fbcaf984b709' | head -n1 | awk '{{print $1}}'); if [ -n \"$EFI_PART\" ] && [ -n \"$ROOT_PART\" ]; then mkdir -p /tmp/efi_mnt /tmp/root_mnt; umount -l $EFI_PART 2>/dev/null || true; umount -l $ROOT_PART 2>/dev/null || true; mount $ROOT_PART /tmp/root_mnt; mount $EFI_PART /tmp/efi_mnt && bootctl install --esp-path=/tmp/efi_mnt && mkdir -p /tmp/efi_mnt/ostree && cp -r /tmp/root_mnt/boot/ostree/* /tmp/efi_mnt/ostree/ && mkdir -p /tmp/efi_mnt/loader/entries && cp /tmp/root_mnt/boot/loader/entries/*.conf /tmp/efi_mnt/loader/entries/ && sed -i 's|/boot/ostree|/ostree|g' /tmp/efi_mnt/loader/entries/*.conf && sed -i 's/bootloader=none/bootloader=systemd-boot/' /tmp/root_mnt/ostree/repo/config {} && umount /tmp/efi_mnt && umount /tmp/root_mnt; fi",
-                            disk, disk, if install_grub { "&& grub-install --target=x86_64-efi --efi-directory=/tmp/efi_mnt --bootloader-id=ArkGRUB --recheck 2>/dev/null || true" } else { "" }
+                            disk, disk, if install_grub { "&& grub-install --target=x86_64-efi --efi-directory=/tmp/efi_mnt --bootloader-id=arkGRUB --recheck 2>/dev/null || true" } else { "" }
                         );
                         let _ = tokio::process::Command::new("pkexec")
                             .args(["bash", "-c", &bootloader_cmd])
