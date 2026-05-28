@@ -37,7 +37,8 @@ RUN sed -i 's/\bblock filesystems\b/block plymouth ostree filesystems/g' /etc/mk
     mkdir -p /etc/plymouth && echo -e "[Daemon]\nTheme=bgrt" > /etc/plymouth/plymouthd.conf && \
     mkinitcpio -P && \
     KVER=$(ls -1 /usr/lib/modules | grep -v 'extramodules' | head -n 1) && \
-    cp /boot/initramfs-${KERNEL}.img /usr/lib/modules/$KVER/initramfs.img
+    IMG=$(ls -1 /boot/initramfs-*.img | grep -v 'fallback' | head -n 1) && \
+    cp $IMG /usr/lib/modules/$KVER/initramfs.img
 
 # Setup kernel args for completely silent boot (just BIOS logo + spinner)
 RUN mkdir -p /usr/lib/bootc/kargs.d && \
