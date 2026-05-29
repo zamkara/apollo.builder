@@ -50,6 +50,7 @@ virtualbox-guest-utils-nox
 wireless-regdb
 wireless_tools
 wpa_supplicant
+syslinux
 efibootmgr
 
 ### ark linux
