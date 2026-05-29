@@ -12,6 +12,7 @@ dmidecode
 dnsmasq
 dosfstools
 e2fsprogs
+xfsprogs
 exfatprogs
 fatresize
 gpart
