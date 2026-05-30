@@ -7,97 +7,8 @@ on:
     - cron: '0 2 * * 0'
   workflow_dispatch:
 
-
 jobs:
-  build-alga:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - name: Cache Cargo
-        uses: actions/cache@v5
-        with:
-          path: |
-            .github/workflows/alga/target/
-            ~/.cargo/registry/
-            ~/.cargo/git/
-          key: ${{ runner.os }}-cargo-alga-${{ hashFiles('.github/workflows/alga/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-alga-
-      - name: Install Rust and GTK4 dependencies
-        run: sudo apt-get update && sudo apt-get install -y libgtk-4-dev libadwaita-1-dev
-      - name: Build Alga Binary
-        working-directory: .github/workflows/alga
-        run: cargo build --release
-      - name: Upload Alga Binary
-        uses: actions/upload-artifact@v7
-        with:
-          name: alga-binary
-          path: .github/workflows/alga/target/release/alga
-
-  build-aur-packages:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        package: [bootupd, bootc]
-    steps:
-      - uses: actions/checkout@v6
-      - name: Get AUR Version
-        id: aur-version
-        run: |
-          VERSION=$(curl -s "https://aur.archlinux.org/rpc/v5/info?arg[]=${{ matrix.package }}" | jq -r '.results[] | "\(.Name)-\(.Version)"')
-          echo "key=$VERSION" >> $GITHUB_OUTPUT
-      - name: Cache AUR package
-        id: cache-aur
-        uses: actions/cache@v5
-        with:
-          path: aur-out/
-          key: ${{ runner.os }}-aur-${{ steps.aur-version.outputs.key }}
-      - name: Cache Pacman AUR Build
-        if: steps.cache-aur.outputs.cache-hit != 'true'
-        uses: actions/cache@v5
-        with:
-          path: pacman-aur-cache/
-          key: ${{ runner.os }}-pacman-aur-v1
-          restore-keys: |
-            ${{ runner.os }}-pacman-aur-
-      - name: Cache Cargo AUR
-        uses: actions/cache@v5
-        with:
-          path: cargo-aur-cache-${{ matrix.package }}/
-          key: ${{ runner.os }}-cargo-aur-${{ matrix.package }}-${{ steps.aur-version.outputs.key }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-aur-${{ matrix.package }}-
-      - name: Prepare Cache Dir
-        if: steps.cache-aur.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p pacman-aur-cache cargo-aur-cache-${{ matrix.package }}
-      - name: Build AUR package in Arch container
-        if: steps.cache-aur.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p aur-out
-          sudo podman run --rm --privileged -v $(pwd):/work -v $(pwd)/pacman-aur-cache:/var/cache/pacman/pkg -v $(pwd)/cargo-aur-cache-${{ matrix.package }}:/home/builduser/.cargo -w /work docker.io/archlinux:latest bash -c "
-            pacman -Syu --noconfirm base-devel git sudo rust
-            useradd -m builduser || true
-            chown -R builduser:builduser /home/builduser
-            passwd -d builduser
-            echo 'builduser ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/builduser
-            
-            sudo -u builduser bash -c '
-              cd ~
-              git clone https://aur.archlinux.org/${{ matrix.package }}.git
-              cd ${{ matrix.package }} && makepkg -s --noconfirm
-            '
-            cp /home/builduser/${{ matrix.package }}/*.pkg.tar.zst /work/aur-out/
-          "
-          sudo chown -R $USER:$USER aur-out/ pacman-aur-cache/ cargo-aur-cache-${{ matrix.package }}/
-      - name: Upload AUR package
-        uses: actions/upload-artifact@v7
-        with:
-          name: aur-package-${{ matrix.package }}
-          path: aur-out/*.pkg.tar.zst
-
   build-payload:
-    needs: [build-aur-packages, build-alga]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -119,20 +30,26 @@ jobs:
           docker-images: true
           swap-storage: true
       - name: Set up dependencies
-        run: sudo apt-get update && sudo apt-get install -y podman
+        run: sudo apt-get update && sudo apt-get install -y podman wget
       - name: Download AUR packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: aur-package-*
-          path: aur-packages/
-          merge-multiple: true
+        run: |
+          mkdir -p aur-packages
+          cd aur-packages
+          wget -q https://github.com/zamkara/ark-aur/releases/download/latest/bootupd-0.2.19-1-x86_64.pkg.tar.zst || true
+          wget -q https://github.com/zamkara/ark-aur/releases/download/latest/bootc-0.1.18-1-x86_64.pkg.tar.zst || true
+          # Note: We fallback to true just in case the release is still building, but ideally these should be present.
+          # Alternatively, use GitHub API to fetch all assets from the latest release.
+          curl -s https://api.github.com/repos/zamkara/ark-aur/releases/tags/latest | jq -r '.assets[].browser_download_url' | wget -i -
+          cd ..
       - name: Download Alga Binary
-        uses: actions/download-artifact@v8
-        with:
-          name: alga-binary
-          path: alga-binary/
+        run: |
+          mkdir -p alga-binary
+          cd alga-binary
+          wget -q https://github.com/zamkara/alga/releases/download/latest/alga
+          chmod +x alga
+          cd ..
       - name: Cache Pacman Payload
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: pacman-cache/
           key: ${{ runner.os }}-pacman-payload-${{ matrix.variant }}-${{ hashFiles('Containerfile') }}
@@ -151,7 +68,6 @@ jobs:
         run: sudo podman push ghcr.io/${{ github.repository }}:${{ matrix.variant }}
 
   build-iso:
-    needs: [build-aur-packages, build-alga]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -161,20 +77,22 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Set up dependencies
-        run: sudo apt-get update && sudo apt-get install -y podman
+        run: sudo apt-get update && sudo apt-get install -y podman wget curl jq
       - name: Download AUR packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: aur-package-*
-          path: aur-packages/
-          merge-multiple: true
+        run: |
+          mkdir -p aur-packages
+          cd aur-packages
+          curl -s https://api.github.com/repos/zamkara/ark-aur/releases/tags/latest | jq -r '.assets[].browser_download_url' | wget -i -
+          cd ..
       - name: Download Alga Binary
-        uses: actions/download-artifact@v8
-        with:
-          name: alga-binary
-          path: alga-binary/
+        run: |
+          mkdir -p alga-binary
+          cd alga-binary
+          wget -q https://github.com/zamkara/alga/releases/download/latest/alga
+          chmod +x alga
+          cd ..
       - name: Cache Pacman ISO
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: pacman-cache/
           key: ${{ runner.os }}-pacman-iso-${{ hashFiles('.github/workflows/archiso/packages.x86_64') }}
@@ -189,7 +107,7 @@ jobs:
           sudo chown -R $USER:$USER out/ pacman-cache/
           mv out/*.iso out/ark-installer.iso
       - name: Upload artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: ark-iso
           path: out/
@@ -228,12 +146,12 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Download ISO artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: ark-iso
           path: out/
       - name: Create Nightly Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.sha }}
           name: "ark linux Build (${{ github.sha }})"
