@@ -1,23 +1,29 @@
-# ark linux
+# Ark Linux 🚀
 
-this is not a new distribution. there is no grandiose vision, nor is there aggressive branding.
-**ark linux** is literally just **vanilla arch linux** wrapped within an immutable container architecture (oci/bootc). that is the only difference.
+Welcome to the central repository for **Ark Linux**! This repository handles the creation of the Live ISO used to install the Ark OS.
 
-if you appreciate vanilla arch linux but desire the smart atomic updates of immutable operating systems without the fear of system breakage, ark linux is the perfect vessel. there is no bloatware, no custom themes, just arch linux rendered immune to update failures.
+Ark Linux is a modern, immutable, container-native Linux distribution built on top of Arch Linux, leveraging `bootc` and OSTree technologies.
 
-## key features
-- **100% pure arch linux**: utilises `docker.io/archlinux:latest` directly as the base image without third-party repositories.
-- **immutable & atomic**: read-only file system with delta updates. should an update fail, you simply roll back via the grub menu.
-- **smart updater**: a lightweight, rust & gtk4-based updater application (`alga`) that automatically detects the os state.
-- **nvidia ready**: automatically provides a variant pre-configured with proprietary nvidia drivers.
-- **production ready**: as this pulls directly from official arch linux, this is not a work-in-progress or pre-release. it is stable and ready for daily use.
+## How It Works
+This repository uses `archiso` combined with GitHub Actions to produce a highly customized Live ISO.
+When booted, the Live ISO presents a beautiful GNOME desktop that automatically launches the **Ark Wizard (alga)**, our custom GTK4/Rust installer, to write the OS to your disk.
 
-## installation
-manual arch linux terminal installation is no longer required.
-1. download the latest installer iso from the **releases** page.
-2. flash to a usb drive and boot your machine (if prompted for a live login, use user: `ark`, password: `arklinux`).
-3. you will be greeted by a rust-based gui installer that seamlessly deploys *ark linux* in minutes.
+## Building the ISO Locally
+If you want to build the Live ISO on your own machine:
+1. Ensure you have `podman`, `wget`, `curl`, and `jq` installed on your host.
+2. Run the build script:
+   ```bash
+   sudo bash .github/workflows/build_iso.sh
+   ```
+   *Note: Building the ISO requires root privileges because it mounts filesystems and uses `mkarchiso`.*
+3. The resulting `.iso` file will be placed in the `out/` directory.
 
-## zero-maintenance architecture
-as ark linux is not a separate distribution, updates are pulled directly from the official arch linux mirrors via github actions every sunday. the base image is automatically built and pushed to the github container registry.
-your local machine simply pulls the delta layers, updates quietly in the background without interrupting your workflow, and applies the changes upon the next reboot.
+## Repository Ecosystem
+Ark Linux is split into a modular architecture:
+- **[ark.linux](https://github.com/zamkara/ark.linux)** (This repo): Builds the bootable Live ISO.
+- **[ark-image](https://github.com/zamkara/ark-image)**: Contains the `Containerfile` that defines the actual OS environment. It publishes the `ghcr.io/zamkara/ark-image` container used by the installer.
+- **[alga](https://github.com/zamkara/alga)**: The "Ark Wizard" frontend application (written in Rust/GTK4) that runs on the ISO to perform the installation, and later serves as the system updater.
+- **[ark-aur](https://github.com/zamkara/ark-aur)**: Custom package repository hosting pre-compiled AUR packages injected into the system.
+
+## License
+MIT License
