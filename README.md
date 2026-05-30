@@ -1,8 +1,8 @@
 # Ark Linux 🚀
 
-Welcome to the central repository for **Ark Linux**! This repository handles the creation of the Live ISO used to install the Ark OS.
+Welcome to the central repository for **Ark Linux**! This repository handles the creation of the Live ISO used to install the system.
 
-Ark Linux is a modern, immutable, container-native Linux distribution built on top of Arch Linux, leveraging `bootc` and OSTree technologies.
+**Ark Linux is NOT a separate distribution.** It is simply vanilla Arch Linux delivered as a modern, immutable, container-native OS, leveraging `bootc` and OSTree technologies to provide atomic updates and reliability.
 
 ## How It Works
 This repository uses `archiso` combined with GitHub Actions to produce a highly customized Live ISO.
