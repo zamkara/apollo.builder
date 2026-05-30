@@ -15,5 +15,6 @@ cp /work/alga-binary/alga /work/.github/workflows/archiso/airootfs/usr/bin/alga
 chmod +x /work/.github/workflows/archiso/airootfs/usr/bin/alga
 
 # Run mkarchiso
-sed -i 's/airootfs.sfs/originium.sfs/g' /usr/bin/mkarchiso
+sed -i 's/airootfs\.sfs/originium.sfs/g' /usr/bin/mkarchiso
+sed -i 's/airootfs\.sha512/originium.sha512/g' /usr/bin/mkarchiso
 mkarchiso -v -w /work/workdir/ -o /work/out/ /work/.github/workflows/archiso/
