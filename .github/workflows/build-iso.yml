@@ -19,9 +19,9 @@ jobs:
       - name: Download AUR packages
         run: |
           mkdir -p aur-packages
-          gh release download latest -R zamkara/ark-aur -D aur-packages --pattern "*.pkg.tar.zst" || true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          cd aur-packages
+          curl -sL https://github.com/zamkara/ark-aur/releases/expanded_assets/latest | grep -o 'href="[^"]*\.pkg\.tar\.zst"' | cut -d'"' -f2 | sed 's|^|https://github.com|' | wget -qi - || true
+          cd ..
       - name: Download Alga Binary
         run: |
           mkdir -p alga-binary
