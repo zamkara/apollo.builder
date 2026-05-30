@@ -4,4 +4,4 @@ Name=Set Wallpaper
 Exec=/usr/local/bin/set-wallpaper.sh
 Hidden=false
 NoDisplay=true
-X-GNOME-Autostart-Phase=Desktop
+X-GNOME-Autostart-Phase=Application

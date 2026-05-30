@@ -15,4 +15,5 @@ cp /work/alga-binary/alga /work/.github/workflows/archiso/airootfs/usr/bin/alga
 chmod +x /work/.github/workflows/archiso/airootfs/usr/bin/alga
 
 # Run mkarchiso
+sed -i 's|mcopy -i "${efibootimg}" -s "${work_dir}/loader" ::/|mcopy -i "${efibootimg}" -s "${work_dir}/loader" ::/\n    if [[ -f "${profile}/efiboot/splash.bmp" ]]; then mcopy -i "${efibootimg}" "${profile}/efiboot/splash.bmp" ::/splash.bmp; fi|' /usr/bin/mkarchiso
 mkarchiso -v -w /work/workdir/ -o /work/out/ /work/.github/workflows/archiso/
