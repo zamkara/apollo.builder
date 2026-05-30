@@ -31,4 +31,6 @@ file_permissions=(
   ["/usr/share/applications/com.zamkara.alga.desktop"]="0:0:755"
   ["/etc/skel/.config/autostart/com.zamkara.alga.desktop"]="0:0:755"
   ["/etc/pacman.d/hooks/99-hide-apps.hook"]="0:0:644"
+  ["/usr/local/bin/set-wallpaper.sh"]="0:0:755"
+  ["/etc/skel/.config/autostart/set-wallpaper.desktop"]="0:0:755"
 )
