@@ -8,64 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-payload:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
-    strategy:
-      fail-fast: false
-      matrix:
-        variant: [ark, ark-nvidia, ark-zen, ark-zen-nvidia, ark-lts, ark-lts-nvidia, ark-hardened, ark-hardened-nvidia]
-    steps:
-      - uses: actions/checkout@v6
-      - name: Free Disk Space
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
-      - name: Set up dependencies
-        run: sudo apt-get update && sudo apt-get install -y podman wget
-      - name: Download AUR packages
-        run: |
-          mkdir -p aur-packages
-          cd aur-packages
-          wget -q https://github.com/zamkara/ark-aur/releases/download/latest/bootupd-0.2.19-1-x86_64.pkg.tar.zst || true
-          wget -q https://github.com/zamkara/ark-aur/releases/download/latest/bootc-0.1.18-1-x86_64.pkg.tar.zst || true
-          # Note: We fallback to true just in case the release is still building, but ideally these should be present.
-          # Alternatively, use GitHub API to fetch all assets from the latest release.
-          curl -s https://api.github.com/repos/zamkara/ark-aur/releases/tags/latest | jq -r '.assets[].browser_download_url' | wget -i - || true
-          cd ..
-      - name: Download Alga Binary
-        run: |
-          mkdir -p alga-binary
-          cd alga-binary
-          wget -q https://github.com/zamkara/alga/releases/download/latest/alga
-          chmod +x alga
-          cd ..
-      - name: Cache Pacman Payload
-        uses: actions/cache@v4
-        with:
-          path: pacman-cache/
-          key: ${{ runner.os }}-pacman-payload-${{ matrix.variant }}-${{ hashFiles('Containerfile') }}
-          restore-keys: |
-            ${{ runner.os }}-pacman-payload-${{ matrix.variant }}-
-            ${{ runner.os }}-pacman-payload-
-      - name: Prepare Cache Dir
-        run: mkdir -p pacman-cache
-      - name: Build custom ark image with bootupd
-        run: |
-          sudo podman build -v $(pwd)/pacman-cache:/var/cache/pacman/pkg --squash-all --build-arg VARIANT=${{ matrix.variant }} -t ghcr.io/${{ github.repository }}:${{ matrix.variant }} -f Containerfile .
-          sudo chown -R $USER:$USER pacman-cache/
-      - name: Log in to the Container registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login ghcr.io -u ${{ github.actor }} --password-stdin
-      - name: Push payload image to GHCR
-        run: sudo podman push ghcr.io/${{ github.repository }}:${{ matrix.variant }}
+
 
   build-iso:
     runs-on: ubuntu-latest
@@ -139,7 +82,7 @@ jobs:
           echo "EXPIRATION_DATE=$EXP_DATE" >> $GITHUB_OUTPUT
 
   release:
-    needs: [build-payload, build-iso]
+    needs: [build-iso]
     runs-on: ubuntu-latest
     permissions:
       contents: write
