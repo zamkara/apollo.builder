@@ -15,24 +15,14 @@ glib-compile-schemas /usr/share/glib-2.0/schemas || true
 sed -i 's/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen || true
 locale-gen
 
-# Enable GDM and NetworkManager
+# Ensure GDM and NetworkManager are enabled
 systemctl enable gdm NetworkManager
 systemctl set-default graphical.target
 
-# Create arch user for Live session if missing, and enable auto-login
-useradd -m -G wheel -s /bin/bash arch || true
-echo "arch:arch" | chpasswd || true
-mkdir -p /etc/gdm
-cat << 'EOF' > /etc/gdm/custom.conf
-[daemon]
-AutomaticLoginEnable=True
-AutomaticLogin=arch
-EOF
-
-# Disable GNOME Initial Setup for the live user
-mkdir -p /home/arch/.config
-echo "yes" > /home/arch/.config/gnome-initial-setup-done
-chown -R arch:arch /home/arch
+# Disable GNOME Initial Setup for the existing ark user
+mkdir -p /home/ark/.config
+echo "yes" > /home/ark/.config/gnome-initial-setup-done
+chown -R 10000:10000 /home/ark
 
 # Rebuild initramfs so the patched hook is included!
 mkinitcpio -P
