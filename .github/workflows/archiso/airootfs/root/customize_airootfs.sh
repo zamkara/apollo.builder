@@ -11,9 +11,8 @@ rm -f /usr/share/applications/{bssh,bvnc,avahi-discover,qv4l2,qvidcap,stoken-gui
 # Compile schemas to ensure MoreWaita and app folders apply
 glib-compile-schemas /usr/share/glib-2.0/schemas || true
 
-# Generate all UTF-8 locales
-sed -i 's/^#\(.*UTF-8.*\)/\1/' /etc/locale.gen || true
-sed -i '/@/s/^/#/' /etc/locale.gen || true
+# Generate only English locale for the Live ISO
+sed -i 's/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen || true
 locale-gen
 
 # Enable GDM and NetworkManager
