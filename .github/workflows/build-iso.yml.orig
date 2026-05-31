@@ -20,18 +20,14 @@ jobs:
         run: |
           mkdir -p aur-packages
           cd aur-packages
-          URLS=$(curl -sL https://github.com/zamkara/ark-aur/releases/expanded_assets/latest | grep -o 'href="[^"]*\.pkg\.tar\.zst"' | cut -d'"' -f2 | sed 's|^|https://github.com|')
-          for url in $URLS; do
-            echo "Downloading $url"
-            wget -q --show-progress -c "$url" || echo "Failed to download $url"
-          done
-          echo "Downloaded packages:"
-          ls -lh
+          curl -sL https://github.com/zamkara/ark-aur/releases/expanded_assets/latest | grep -o 'href="[^"]*\.pkg\.tar\.zst"' | cut -d'"' -f2 | sed 's|^|https://github.com|' | wget -qi - || true
           cd ..
-      - name: Download Alga Package
+      - name: Download Alga Binary
         run: |
-          cd aur-packages
-          curl -sL https://github.com/zamkara/alga/releases/expanded_assets/latest | grep -o 'href="[^"]*\.pkg\.tar\.zst"' | cut -d'"' -f2 | sed 's|^|https://github.com|' | wget -qi - || true
+          mkdir -p alga-binary
+          cd alga-binary
+          wget -q https://github.com/zamkara/alga/releases/download/latest/alga
+          chmod +x alga
           cd ..
       - name: Cache Pacman ISO
         uses: actions/cache@v4
