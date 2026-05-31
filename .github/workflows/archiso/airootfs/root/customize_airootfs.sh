@@ -16,5 +16,19 @@ sed -i 's/^#\(.*UTF-8.*\)/\1/' /etc/locale.gen || true
 sed -i '/@/s/^/#/' /etc/locale.gen || true
 locale-gen
 
+# Enable GDM and NetworkManager
+systemctl enable gdm NetworkManager
+systemctl set-default graphical.target
+
+# Create arch user for Live session if missing, and enable auto-login
+useradd -m -G wheel -s /bin/bash arch || true
+passwd -d arch || true
+mkdir -p /etc/gdm
+cat << 'EOF' > /etc/gdm/custom.conf
+[daemon]
+AutomaticLoginEnable=True
+AutomaticLogin=arch
+EOF
+
 # Rebuild initramfs so the patched hook is included!
 mkinitcpio -P
