@@ -21,13 +21,18 @@ systemctl set-default graphical.target
 
 # Create arch user for Live session if missing, and enable auto-login
 useradd -m -G wheel -s /bin/bash arch || true
-passwd -d arch || true
+echo "arch:arch" | chpasswd || true
 mkdir -p /etc/gdm
 cat << 'EOF' > /etc/gdm/custom.conf
 [daemon]
 AutomaticLoginEnable=True
 AutomaticLogin=arch
 EOF
+
+# Disable GNOME Initial Setup for the live user
+mkdir -p /home/arch/.config
+echo "yes" > /home/arch/.config/gnome-initial-setup-done
+chown -R arch:arch /home/arch
 
 # Rebuild initramfs so the patched hook is included!
 mkinitcpio -P
